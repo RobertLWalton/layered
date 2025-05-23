@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 30 12:44:48 PM EDT 2025
+// Date:	Fri May 23 07:10:34 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -660,9 +660,9 @@ namespace pass_function {
 
     // Function called (if not NULL) when the parser
     // is reset via the `ll::parser::reset' function.
-    // This function should reset parameters to default
-    // values and remove all symbol table entries with
-    // block_level > 0.
+    // This function should reset parameters that are
+    // NOT saved/restored by block begin/end to default
+    // values.
     //
     typedef void ( * reset )
 	    ( ll::parser::parser parser,
@@ -1112,7 +1112,8 @@ struct parser_struct
     uns32 control;
         // Packed structure control word.
 
-    // Parser parameters:
+    // Parser parameters not saved/restored by block
+    // begin/end and not changed by parser reset.
 
     const ll::parser::input input;
         // Closure to call to get more tokens.  Must
@@ -1137,13 +1138,6 @@ struct parser_struct
 	// subexpression.  If NULL_STUB there are no
 	// passes.  Set to NULL_STUB when parser is
 	// created.
-
-    ll::parser::table::flags input_flags;
-        // Parser input flags: see above.
-
-    ll::parser::table::flags trace_flags;
-        // Parser trace flags: see above.  Tracing is
-	// done to parser->printer.
 
     const min::gen_format * subexpression_gen_format;
         // min::gen_format used to print subexpressions
@@ -1178,11 +1172,6 @@ struct parser_struct
 	// id_map->ID_character equals min::NO_UCHAR
 	// if ID lexemes are disabled.
 
-    const ll::parser::table::lexeme_map lexeme_map;
-	// lexeme_map[t] is the stack of lexeme map
-	// entries for lexeme type t; == NULL_STUB if
-	// no entries for t.
-
     const min::file input_file;
         // Input file used to print messages.  If a
 	// scanner is used, this MUST be the same as
@@ -1207,6 +1196,40 @@ struct parser_struct
 	// parser commands.  Defaults to a scanner
 	// with the same program and printer as the main
 	// parser scanner.
+
+    uns64 error_count;
+    uns64 warning_count;
+        // Number of parser error/warning messages
+	// output so far.  To determine if there is an
+	// error/warning in the parse of a given expres-
+	// sion, check to see if error/warning_count is
+	// incremented.  Warning_count is incremented
+	// even if TRACE_WARNING is off so that warning
+	// messages are not printed.
+
+    uns64 max_error_count;
+        // Maximum allowed value of error_count.  When
+	// this value is reached, the parser returns,
+	// even if it has not yet reached an end of
+	// file.  Default 100.
+
+    // Parser parameters saved/restored by block
+    // begin/end, but not changed by parser reset.
+
+    // id_map->ID_character is saved/restored but
+    // the rest of id_map is not.
+
+    ll::parser::table::flags input_flags;
+        // Parser input flags: see above.
+
+    ll::parser::table::flags trace_flags;
+        // Parser trace flags: see above.  Tracing is
+	// done to parser->printer.
+
+    const ll::parser::table::lexeme_map lexeme_map;
+	// lexeme_map[t] is the stack of lexeme map
+	// entries for lexeme type t; == NULL_STUB if
+	// no entries for t.
 
     const ll::parser::table::undefined_stack
     	    undefined_stack;
@@ -1237,14 +1260,9 @@ struct parser_struct
 	//   | TOP_LEVEL_OFF_SELECTORS
 	//   | ALWAYS_SELECTOR
 
-    // Parser state:
+    // Parser state, reset by parser reset,
+    // NOT saved/restored by block begin/end.
     //
-    uns32 lexical_master;
-        // Last lexical master set for scanner, or
-	// ll::lexeme::MISSING_MASTER if none set.
-	// This is the lexical_master_index set
-	// (NOT the lexical table ID).
-
     const ll::parser::token first;
         // First token in token list.  The tokens are a
 	// doubly linked list.  NULL_STUB if this list
@@ -1253,6 +1271,12 @@ struct parser_struct
 	// Tokens are added to the end of the list when
 	// the input is called.   Tokens may be dele-
 	// ted from the list or replaced in the list.
+
+    uns32 lexical_master;
+        // Last lexical master set for scanner, or
+	// ll::lexeme::MISSING_MASTER if none set.
+	// This is the lexical_master_index set
+	// (NOT the lexical table ID).
 
     bool at_paragraph_beginning;
         // Set true when parser initialized, when
@@ -1268,22 +1292,6 @@ struct parser_struct
     min::position last_comment_end;
         // Set to end position of last comment token
 	// deleted.
-
-    uns64 error_count;
-    uns64 warning_count;
-        // Number of parser error/warning messages
-	// output so far.  To determine if there is an
-	// error/warning in the parse of a given expres-
-	// sion, check to see if error/warning_count is
-	// incremented.  Warning_count is incremented
-	// even if TRACE_WARNING is off so that warning
-	// messages are not printed.
-
-    uns64 max_error_count;
-        // Maximum allowed value of error_count.  When
-	// this value is reached, the parser returns,
-	// even if it has not yet reached an end of
-	// file.  Default 100.
 
     min::phrase_position message_header;
         // Position in input_file of lines that are to
@@ -1371,7 +1379,9 @@ extern min::phrase_position top_level_position;
 // This `init' function creates a parser and stores a
 // pointer to it in the argument variable, if the
 // variable's previous value is NULL_STUB.  The variable
-// MUST BE locatable by the garbage collector.
+// MUST BE locatable by the garbage collector.  If the
+// variable's value is NOT NULL_STUB, nothing is done
+// by this `init' function.
 //
 // When a parser is created, bracketed and prefix passes
 // are created for the parser, with the prefix pass
@@ -1388,9 +1398,16 @@ void init ( min::ref<ll::parser::parser> parser,
 	        standard_components =
 		    ll::parser::table::ALL_FLAGS );
 
-// This `reset' function restores parser parameters to
-// the values they had when the parser was first
-// created.
+// This `reset' function resets the parser parameters
+// that should be reset when the parser input file
+// is changed.  Parameters saved/restored by block
+// begin/end are NOT reset.
+//
+// To change a parser's input file/stream, call this
+// function and then call the appropriate init_input_...
+// function.  This is done BETWEEN calls to the
+// `parse' function that runs the parse on an input
+// file/stream.
 //
 void reset ( min::ref<ll::parser::parser> parser );
 
@@ -1715,7 +1732,7 @@ inline min::gen get_master_name
 // ll::parser::parse_error below).  The position should
 // be the position of the entire parser command.  End_
 // block checks that `name' matches the name of the
-// block being ended.
+// block being ended unless `name' is min::MISSING().
 //
 min::gen begin_block
     ( ll::parser::parser parser, min::gen name,

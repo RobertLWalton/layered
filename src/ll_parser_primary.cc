@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 13 03:45:03 AM EDT 2025
+// Date:	Fri May 23 07:24:44 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -451,25 +451,6 @@ static void primary_pass_reset
 	( PAR::parser parser,
 	  PAR::pass pass )
 {
-    PRIM::primary_pass primary_pass =
-        (PRIM::primary_pass) pass;
-
-    TAB::key_table separator_table =
-        primary_pass->separator_table;
-
-    TAB::key_table primary_table =
-        primary_pass->primary_table;
-
-    min::uns64 collected_entries = 0,
-               collected_key_prefixes = 0;
-
-    TAB::end_block
-        ( separator_table, 0,
-	  collected_key_prefixes, collected_entries );
-
-    TAB::end_block
-        ( primary_table, 0,
-	  collected_key_prefixes, collected_entries );
 }
 
 static min::gen primary_pass_end_block

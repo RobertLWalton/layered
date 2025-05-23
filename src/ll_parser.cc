@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  1 03:57:38 AM EDT 2025
+// Date:	Fri May 23 07:11:38 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -710,16 +710,18 @@ void PAR::init ( min::ref<PAR::parser> parser,
         parser = ::parser_type.new_stub();
 	first_ref(parser) = min::NULL_STUB;
 
-	parser->eof = false;
-	parser->finished_tokens = 0;
+	parser->lexical_master = PAR::MISSING_MASTER;
 	parser->at_paragraph_beginning = false;
 	parser->last_comment_end = { 0, 0 };
-	parser->error_count = 0;
-	parser->warning_count = 0;
-	parser->max_error_count = 100;
 	parser->message_header.begin =
 	parser->message_header.end =
 	    min::MISSING_POSITION;
+	parser->eof = false;
+	parser->finished_tokens = 0;
+
+	parser->error_count = 0;
+	parser->warning_count = 0;
+	parser->max_error_count = 100;
 	parser->subexpression_gen_format =
 	    min::line_gen_format;
 	parser->input_flags = PAR::INPUT_DEFAULTS;
@@ -975,8 +977,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		    ->parsing_selectors.or_flags
 	    | PAR::TOP_LEVEL_OFF_SELECTORS
 	    | PAR::ALWAYS_SELECTOR;
-	parser->lexical_master =
-	    PAR::MISSING_MASTER;
 
 	BRA::push_indentation_mark
 	    ( PARLEX::parser_colon,
@@ -1175,21 +1175,14 @@ void PAR::reset ( min::ref<PAR::parser> parser )
 	    != NULL_STUB )
 	PAR::free ( token );
 
-    // Restore any block_level 0 definition selectors.
-    //
-    while ( parser->undefined_stack->length > 0 )
-    {
-        TAB::undefined_struct u =
-	    min::pop ( parser->undefined_stack );
-	u.root->selectors = u.saved_selectors;
-    }
-
-    min::uns64 collected_entries = 0;
-    TAB::end_block ( parser->lexeme_map, 0,
-                     collected_entries );
-
-    min::pop ( parser->block_stack,
-               parser->block_stack->length );
+    parser->lexical_master = PAR::MISSING_MASTER;
+    parser->at_paragraph_beginning = false;
+    parser->last_comment_end = { 0, 0 };
+    parser->message_header.begin =
+    parser->message_header.end =
+	min::MISSING_POSITION;
+    parser->eof = false;
+    parser->finished_tokens = 0;
 
     for ( PAR::pass pass = parser->pass_stack;
     	  pass != min::NULL_STUB;
@@ -1198,22 +1191,6 @@ void PAR::reset ( min::ref<PAR::parser> parser )
 	if ( pass->reset != NULL )
 	    ( * pass->reset ) ( parser, pass );
     }
-
-
-    parser->eof = false;
-    parser->finished_tokens = 0;
-    parser->at_paragraph_beginning = false;
-    parser->last_comment_end = { 0, 0 };
-    parser->error_count = 0;
-    parser->warning_count = 0;
-    parser->max_error_count = 100;
-    parser->message_header.begin =
-    parser->message_header.end =
-	min::MISSING_POSITION;
-    parser->subexpression_gen_format =
-	min::line_gen_format;
-    parser->input_flags = PAR::INPUT_DEFAULTS;
-    parser->trace_flags = PAR::TRACE_WARNINGS;
 }
 
 void PAR::init_input_stream
@@ -1653,7 +1630,7 @@ min::gen PAR::end_block
 
     min::ref<TAB::block_struct> b =
         parser->block_stack[block_level-1];
-    if ( name != (&b)->name )
+    if ( name != (&b)->name && name != min::MISSING() )
         return PAR::parse_error
 	    ( parser,
 	      position,

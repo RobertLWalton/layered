@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  6 03:53:04 AM EDT 2025
+// Date:	Fri May 23 07:21:32 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -260,23 +260,10 @@ static void oper_pass_reset
 {
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
 
-    TAB::key_table oper_table = oper_pass->oper_table;
-    TAB::key_table oper_bracket_table =
-        oper_pass->oper_bracket_table;
     OP::oper_stack oper_stack = oper_pass->oper_stack;
     min::pop ( oper_stack, oper_stack->length );
-
-    min::uns64 collected_entries,
-               collected_key_prefixes;
-
-    TAB::end_block
-        ( oper_table, 0,
-	  collected_key_prefixes, collected_entries );
-    TAB::end_block
-        ( oper_bracket_table, 0,
-	  collected_key_prefixes, collected_entries );
-
-    oper_pass->temporary_count = 0;
+    OP::oper_vec oper_vec = oper_pass->oper_vec;
+    min::pop ( oper_vec, oper_vec->length );
 }
 
 static min::gen oper_pass_end_block

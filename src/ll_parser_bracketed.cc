@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 30 04:52:10 PM EDT 2025
+// Date:	Fri May 23 07:15:35 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -782,29 +782,6 @@ static void bracketed_pass_reset
 	( PAR::parser parser,
 	  PAR::pass pass )
 {
-    BRA::bracketed_pass bracketed_pass =
-        (BRA::bracketed_pass) pass;
-    TAB::key_table bracket_table =
-        bracketed_pass->bracket_table;
-    TAB::key_table bracket_type_table =
-        bracketed_pass->bracket_type_table;
-
-    min::uns64 collected_entries,
-               collected_key_prefixes;
-
-    TAB::end_block
-        ( bracket_table, 0,
-	  collected_key_prefixes, collected_entries );
-    TAB::end_block
-        ( bracket_type_table, 0,
-	  collected_key_prefixes, collected_entries );
-    min::pop ( bracketed_pass->block_stack,
-	       bracketed_pass->block_stack->length );
-    bracketed_pass->indentation_offset = 2;
-    BRA::string_concatenator_ref ( bracketed_pass ) =
-        min::DISABLED();
-    BRA::middle_break mb = { "", "", 0, 0 };
-    bracketed_pass->middle_break = mb;
 }
 
 static min::gen bracketed_pass_begin_block

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  6 03:52:50 AM EDT 2025
+// Date:	Fri May 23 07:21:46 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -279,11 +279,6 @@ struct oper_pass_struct
     const ll::parser::oper::oper_vec oper_vec;
 
     const ll::parser::oper::oper_stack oper_stack;
-
-    min::uns32 temporary_count;
-        // Number of temporary variables created so far.
-	// The next temporary variable to be create will
-	// be `$ T' where T == temporary_count.
 
     ll::parser::table::flags trace_subexpressions;
         // Trace flag named `operator subexpressions'

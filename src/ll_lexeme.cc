@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 23 05:34:14 EDT 2023
+// Date:	Fri May 23 03:00:50 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1001,24 +1001,14 @@ void LEX::init ( min::ref<LEX::scanner> scanner )
 	    inchar_vec_type.new_gen();
 	LEX::translation_buffer_ref(scanner) =
 	    Uchar_vec_type.new_gen();
-	scanner->initial_table = 0;
     }
     else
     {
 	min::pop ( scanner->input_buffer,
 		   scanner->input_buffer->length );
-	min::resize ( scanner->input_buffer, 1000 );
 	min::pop
 	    ( scanner->translation_buffer,
 	      scanner->translation_buffer->length );
-	min::resize
-	    ( scanner->translation_buffer, 1000 );
-
-	scanner->next_position.line = 0;
-	scanner->next_position.offset = 0;
-	scanner->next_indent = 0;
-
-	scanner->next = 0;
     }
 
     scanner->reinitialize = true;
@@ -1870,7 +1860,12 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 		      ( "standard input" ) );
 	}
 
+	scanner->next_position.line = 0;
+	scanner->next_position.offset = 0;
+	scanner->next_indent = 0;
         scanner->scan_error = false;
+        scanner->next = 0;
+
         scanner->reinitialize = false;
 
 	min::ptr<table_header> cathp =

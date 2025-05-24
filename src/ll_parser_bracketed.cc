@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 23 07:15:35 AM EDT 2025
+// Date:	Sat May 24 03:54:04 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -778,12 +778,6 @@ static void bracketed_pass_place
         1ull << index;
 }
 
-static void bracketed_pass_reset
-	( PAR::parser parser,
-	  PAR::pass pass )
-{
-}
-
 static min::gen bracketed_pass_begin_block
 	( PAR::parser parser,
 	  PAR::pass pass,
@@ -857,8 +851,6 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
 
     bracketed_pass->place =
         ::bracketed_pass_place;
-    bracketed_pass->reset =
-        ::bracketed_pass_reset;
     bracketed_pass->begin_block =
         ::bracketed_pass_begin_block;
     bracketed_pass->end_block =

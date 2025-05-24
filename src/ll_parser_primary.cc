@@ -447,11 +447,6 @@ static void primary_pass_place
         1ull << index;
 }
 
-static void primary_pass_reset
-	( PAR::parser parser,
-	  PAR::pass pass )
-{
-}
 
 static min::gen primary_pass_end_block
 	( PAR::parser parser,
@@ -520,7 +515,6 @@ PAR::pass PRIM::new_pass ( PAR::parser parser )
 	::primary_pass_command;
     primary_pass->parse = ::primary_parse;
     primary_pass->place = ::primary_pass_place;
-    primary_pass->reset = ::primary_pass_reset;
     primary_pass->end_block = ::primary_pass_end_block;
 
     return (PAR::pass) primary_pass;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 23 07:11:38 AM EDT 2025
+// Date:	Sat May 24 03:46:38 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1165,34 +1165,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
     }
 }
 
-void PAR::reset ( min::ref<PAR::parser> parser )
-{
-    PAR::init ( parser );
-
-    PAR::token token;  // WARNING:: not locatable.
-    while (    ( token = PAR::remove
-		     ( PAR::first_ref(parser)) )
-	    != NULL_STUB )
-	PAR::free ( token );
-
-    parser->lexical_master = PAR::MISSING_MASTER;
-    parser->at_paragraph_beginning = false;
-    parser->last_comment_end = { 0, 0 };
-    parser->message_header.begin =
-    parser->message_header.end =
-	min::MISSING_POSITION;
-    parser->eof = false;
-    parser->finished_tokens = 0;
-
-    for ( PAR::pass pass = parser->pass_stack;
-    	  pass != min::NULL_STUB;
-	  pass = pass->next )
-    {
-	if ( pass->reset != NULL )
-	    ( * pass->reset ) ( parser, pass );
-    }
-}
-
 void PAR::init_input_stream
 	( min::ref<PAR::parser> parser,
 	  std::istream & in,
@@ -1380,6 +1352,21 @@ void PAR::parse ( PAR::parser parser )
          && parser->output->init != NULL)
 	( * parser->output->init )
 	    ( parser, parser->output );
+
+    min::locatable_var<PAR::token> token;
+    while (    ( token = PAR::remove
+		     ( PAR::first_ref(parser)) )
+	    != NULL_STUB )
+	PAR::free ( token );
+
+    parser->lexical_master = PAR::MISSING_MASTER;
+    parser->at_paragraph_beginning = false;
+    parser->last_comment_end = { 0, 0 };
+    parser->message_header.begin =
+    parser->message_header.end =
+	min::MISSING_POSITION;
+    parser->eof = false;
+    parser->finished_tokens = 0;
 
     for ( PAR::pass pass = parser->pass_stack;
     	  pass != min::NULL_STUB;

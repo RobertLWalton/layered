@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 23 07:21:32 AM EDT 2025
+// Date:	Sat May 24 03:53:52 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -254,7 +254,7 @@ static void oper_pass_place
         1ull << index;
 }
 
-static void oper_pass_reset
+static void oper_pass_begin_parse
 	( PAR::parser parser,
 	  PAR::pass pass )
 {
@@ -327,7 +327,7 @@ PAR::pass OP::new_pass ( PAR::parser parser )
     oper_pass->parser_command = ::oper_pass_command;
     oper_pass->parse = ::oper_parse;
     oper_pass->place = ::oper_pass_place;
-    oper_pass->reset = ::oper_pass_reset;
+    oper_pass->begin_parse = ::oper_pass_begin_parse;
     oper_pass->end_block = ::oper_pass_end_block;
 
     return (PAR::pass) oper_pass;

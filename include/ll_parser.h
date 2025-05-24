@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 23 07:10:34 AM EDT 2025
+// Date:	Sat May 24 03:47:39 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -658,21 +658,13 @@ namespace pass_function {
 	    ( ll::parser::parser parser,
 	      ll::parser::pass pass );
 
-    // Function called (if not NULL) when the parser
-    // is reset via the `ll::parser::reset' function.
-    // This function should reset parameters that are
-    // NOT saved/restored by block begin/end to default
-    // values.
-    //
-    typedef void ( * reset )
-	    ( ll::parser::parser parser,
-	      ll::parser::pass pass );
-
     // Function called (if not NULL) at the beginning
     // of a parse function execution.  This function
-    // typically does nothing but initialize statistics.
+    // should reset parameters that are NOT
+    // saved/restored by block begin/end to default
+    // values.
     //
-    typedef min::gen ( * begin_parse )
+    typedef void ( * begin_parse )
 	    ( ll::parser::parser parser,
 	      ll::parser::pass pass );
 
@@ -806,7 +798,6 @@ struct pass_struct
 	// of the bracketed subexpression.
 
     ll::parser::pass_function::place place;
-    ll::parser::pass_function::reset reset;
     ll::parser::pass_function::begin_parse begin_parse;
     ll::parser::pass_function::parse parse;
     ll::parser::pass_function::end_parse end_parse;
@@ -1113,7 +1104,8 @@ struct parser_struct
         // Packed structure control word.
 
     // Parser parameters not saved/restored by block
-    // begin/end and not changed by parser reset.
+    // begin/end and not changed at the beginning of
+    // the `parse' function.
 
     const ll::parser::input input;
         // Closure to call to get more tokens.  Must
@@ -1214,7 +1206,8 @@ struct parser_struct
 	// file.  Default 100.
 
     // Parser parameters saved/restored by block
-    // begin/end, but not changed by parser reset.
+    // begin/end, but not changed at the beginning
+    // of the `parse' function.
 
     // id_map->ID_character is saved/restored but
     // the rest of id_map is not.
@@ -1260,8 +1253,9 @@ struct parser_struct
 	//   | TOP_LEVEL_OFF_SELECTORS
 	//   | ALWAYS_SELECTOR
 
-    // Parser state, reset by parser reset,
-    // NOT saved/restored by block begin/end.
+    // Parser state, reset at the beginning of the
+    // `parse' function.  NOT saved/restored by block
+    // begin/end.
     //
     const ll::parser::token first;
         // First token in token list.  The tokens are a
@@ -1397,19 +1391,6 @@ void init ( min::ref<ll::parser::parser> parser,
             ll::parser::table::flags
 	        standard_components =
 		    ll::parser::table::ALL_FLAGS );
-
-// This `reset' function resets the parser parameters
-// that should be reset when the parser input file
-// is changed.  Parameters saved/restored by block
-// begin/end are NOT reset.
-//
-// To change a parser's input file/stream, call this
-// function and then call the appropriate init_input_...
-// function.  This is done BETWEEN calls to the
-// `parse' function that runs the parse on an input
-// file/stream.
-//
-void reset ( min::ref<ll::parser::parser> parser );
 
 // Initialize parser if necessary and set a parameter.
 // Some parameters are copied to both parser and any

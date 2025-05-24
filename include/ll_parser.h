@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 24 03:47:39 AM EDT 2025
+// Date:	Sat May 24 05:36:59 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1440,22 +1440,22 @@ inline void init_lexeme_map
 // parser->input_file.
 //
 void init_input_stream
-	( min::ref<ll::parser::parser> parser,
+	( ll::parser::parser parser,
 	  std::istream & istream,
 	  const min::line_format * line_format = NULL,
 	  min::uns32 spool_lines = min::ALL_LINES );
 void init_input_file
-	( min::ref<ll::parser::parser> parser,
+	( ll::parser::parser parser,
 	  min::file ifile,
 	  const min::line_format * line_format = NULL,
 	  min::uns32 spool_lines = min::ALL_LINES );
 bool init_input_named_file
-	( min::ref<ll::parser::parser> parser,
+	( ll::parser::parser parser,
 	  min::gen file_name,
 	  const min::line_format * line_format = NULL,
 	  min::uns32 spool_lines = min::ALL_LINES );
 void init_input_string
-	( min::ref<ll::parser::parser> parser,
+	( ll::parser::parser parser,
 	  min::ptr<const char> data,
 	  const min::line_format * line_format = NULL,
 	  min::uns32 spool_lines = min::ALL_LINES );
@@ -1465,7 +1465,7 @@ void init_input_string
 // parser->printer.
 //
 void init_ostream
-	( min::ref<ll::parser::parser> parser,
+	( ll::parser::parser parser,
 	  std::ostream & ostream );
 
 // Run a parser.  At the end of this function each top

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 31 04:05:30 PM EDT 2025
+// Date:	Sat May 24 05:18:23 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -553,6 +553,13 @@ static void define_lexeme_map
 void PARSTD::define_standard
 	( PAR::parser parser, TAB::flags components )
 {
+    MIN_ASSERT ( parser != min::NULL_STUB,
+                 "init parser before calling"
+		 " define_standard" );
+    MIN_ASSERT ( parser->scanner != min::NULL_STUB,
+                 "init scanner before calling"
+		 " define_standard" );
+
     if ( components & PARSTD::BLOCK )
         ::define_block ( parser );
     if ( components & PARSTD::TOP_LEVEL )

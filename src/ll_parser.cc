@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 24 03:46:38 AM EDT 2025
+// Date:	Sat May 24 05:35:15 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1165,13 +1165,62 @@ void PAR::init ( min::ref<PAR::parser> parser,
     }
 }
 
+inline void init_input ( PAR::parser parser )
+{
+    MIN_ASSERT ( parser != min::NULL_STUB,
+                 "init parser before calling"
+		 " init_input_..." );
+    MIN_ASSERT ( parser->scanner != min::NULL_STUB,
+                 "init scanner before calling"
+		 " init_input_..." );
+
+    LEX::scanner scanner = parser->scanner;
+    if ( parser->input_file != scanner->input_file )
+    {
+	if ( parser->input_file == min::NULL_STUB )
+	    input_file_ref(parser) =
+		    scanner->input_file;
+	else if (    scanner->input_file
+	          == min::NULL_STUB )
+	    LEX::input_file_ref(scanner) =
+		    parser->input_file;
+	else MIN_ABORT
+	    ( "input_file of parser and"
+	      " parser->scanner are not the same" );
+    }
+}
+
+inline void init_printer ( PAR::parser parser )
+{
+    MIN_ASSERT ( parser != min::NULL_STUB,
+                 "init parser before calling"
+		 " init_ostream" );
+    MIN_ASSERT ( parser->scanner != min::NULL_STUB,
+                 "init scanner before calling"
+		 " init_ostream" );
+
+    LEX::scanner scanner = parser->scanner;
+    if ( parser->printer != scanner->printer )
+    {
+	if ( parser->printer == min::NULL_STUB )
+	    printer_ref(parser) =
+		    scanner->printer;
+	else if ( scanner->printer == min::NULL_STUB )
+	    LEX::printer_ref(scanner) =
+		    parser->printer;
+	else MIN_ABORT
+	    ( "printer of parser and"
+	      " parser->scanner are not the same" );
+    }
+}
+
 void PAR::init_input_stream
-	( min::ref<PAR::parser> parser,
+	( PAR::parser parser,
 	  std::istream & in,
 	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
-    init ( parser );
+    ::init_input ( parser );
 
     min::init_input_stream
         ( input_file_ref(parser),
@@ -1179,12 +1228,12 @@ void PAR::init_input_stream
 }
 
 void PAR::init_input_file
-	( min::ref<PAR::parser> parser,
+	( PAR::parser parser,
 	  min::file ifile,
 	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
-    init ( parser );
+    ::init_input ( parser );
 
     min::init_input_file
         ( input_file_ref(parser),
@@ -1192,12 +1241,12 @@ void PAR::init_input_file
 }
 
 bool PAR::init_input_named_file
-	( min::ref<PAR::parser> parser,
+	( PAR::parser parser,
 	  min::gen file_name,
 	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
-    init ( parser );
+    ::init_input ( parser );
 
     return min::init_input_named_file
         ( input_file_ref(parser),
@@ -1205,12 +1254,12 @@ bool PAR::init_input_named_file
 }
 
 void PAR::init_input_string
-	( min::ref<PAR::parser> parser,
+	( PAR::parser parser,
 	  min::ptr<const char> data,
 	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
-    init ( parser );
+    ::init_input ( parser );
 
     min::init_input_string
         ( input_file_ref(parser),
@@ -1218,10 +1267,10 @@ void PAR::init_input_string
 }
 
 void PAR::init_ostream
-	( min::ref<PAR::parser> parser,
+	( PAR::parser parser,
 	  std::ostream & out )
 {
-    init ( parser );
+    ::init_printer ( parser );
 
     min::init_ostream ( printer_ref(parser), out );
 }
@@ -1307,43 +1356,47 @@ inline TAB::flags output_trace_flags
 
 void PAR::parse ( PAR::parser parser )
 {
+    MIN_ASSERT ( parser != min::NULL_STUB,
+                 "init parser before calling"
+		 " parse" );
+    MIN_ASSERT ( parser->scanner != min::NULL_STUB,
+                 "init scanner before calling"
+		 " parse" );
+
     // Initialize parser parameters.
     //
-    if ( parser->scanner != NULL_STUB )
+    LEX::scanner scanner = parser->scanner;
+    if ( parser->input_file != scanner->input_file )
     {
-        LEX::scanner scanner = parser->scanner;
-        if ( parser->input_file != scanner->input_file )
-	{
-	    if ( parser->input_file == NULL_STUB )
-	        input_file_ref(parser) =
-			scanner->input_file;
-	    else if ( scanner->input_file == NULL_STUB )
-		LEX::input_file_ref(scanner) =
-			parser->input_file;
-	    else MIN_ABORT
-	        ( "input_file of parser and"
-		  " parser->scanner are not the same" );
-	}
-	else if ( parser->input_file == NULL_STUB )
-	    MIN_ABORT
-	        ( "parser->input_file not defined" );
-
-        if ( parser->printer != scanner->printer )
-	{
-	    if ( parser->printer == NULL_STUB )
-	        printer_ref(parser) =
-			scanner->printer;
-	    else if ( scanner->printer == NULL_STUB )
-	        LEX::printer_ref(scanner) =
-			parser->printer;
-	    else MIN_ABORT
-	        ( "printer of parser and"
-		  " parser->scanner are not the same" );
-	}
-	else if ( parser->printer == NULL_STUB )
-	    MIN_ABORT
-	        ( "parser->printer not defined" );
+	if ( parser->input_file == NULL_STUB )
+	    input_file_ref(parser) =
+		    scanner->input_file;
+	else if ( scanner->input_file == NULL_STUB )
+	    LEX::input_file_ref(scanner) =
+		    parser->input_file;
+	else MIN_ABORT
+	    ( "input_file of parser and"
+	      " parser->scanner are not the same" );
     }
+    else if ( parser->input_file == NULL_STUB )
+	MIN_ABORT
+	    ( "parser->input_file not defined" );
+
+    if ( parser->printer != scanner->printer )
+    {
+	if ( parser->printer == NULL_STUB )
+	    printer_ref(parser) =
+		    scanner->printer;
+	else if ( scanner->printer == NULL_STUB )
+	    LEX::printer_ref(scanner) =
+		    parser->printer;
+	else MIN_ABORT
+	    ( "printer of parser and"
+	      " parser->scanner are not the same" );
+    }
+    else if ( parser->printer == NULL_STUB )
+	MIN_ABORT
+	    ( "parser->printer not defined" );
 
     if ( parser->input->init != NULL)
 	( * parser->input->init )

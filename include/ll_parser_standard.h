@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 31 08:10:53 PM EDT 2025
+// Date:	Sat May 24 05:12:59 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -326,6 +326,17 @@ extern min::locatable_var<ll::parser::table::key_table>
 
 // Define Standard
 // ------ --------
+
+// You MUST create the parser scanner before calling
+// these functions.  You can do this by calling
+// the init_input function above.  Also, using any
+// component flag with the parser `init' function
+// will automatically call init_input before calling
+// define_standard.
+//
+// To avoid using init_input, call parser `init' with
+// 0 components flag, set up the scanner, and then
+// call define_standard.
 
 // Set the bracketed_pass->bracket_table for the
 // standard set of layered language brackets and

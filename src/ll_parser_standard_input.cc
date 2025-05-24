@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr  8 16:12:29 EDT 2024
+// Date:	Sat May 24 05:36:18 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -84,7 +84,6 @@ void PARSTD::init_input
     PARSTD::parser_ref(PARSTD::default_erroneous_atom) =
         parser;
 
-    PAR::init ( parser, 0 );
     LEXSTD::init_standard_program();
     LEX::init_program
 	( PAR::scanner_ref(parser),

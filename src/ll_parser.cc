@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 24 05:35:15 PM EDT 2025
+// Date:	Sat May 24 09:16:53 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1266,7 +1266,7 @@ void PAR::init_input_string
 	  data, line_format, spool_lines );
 }
 
-void PAR::init_ostream
+void PAR::init_printer_ostream
 	( PAR::parser parser,
 	  std::ostream & out )
 {

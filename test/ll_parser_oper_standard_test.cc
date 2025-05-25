@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 23 07:38:37 EDT 2023
+// Date:	Sat May 24 09:22:04 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,7 +34,7 @@ int main ( int argc, const char * argv[] )
         OP::init_oper ( PAR::default_parser );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin );
-    PAR::init_ostream
+    PAR::init_printer_ostream
         ( PAR::default_parser, std::cout );
     PAR::init_line_format
         ( PAR::default_parser,

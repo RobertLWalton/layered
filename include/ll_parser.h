@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 24 05:36:59 PM EDT 2025
+// Date:	Sat May 24 09:18:31 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1370,6 +1370,23 @@ extern min::locatable_var<ll::parser::parser>
 
 extern min::phrase_position top_level_position;
 
+// The proper sequence of initialization calls for a
+// parser is:
+//
+// (1) call init ( parser, components )
+// (2) if components == 0:
+//     (2a) create parser->scanner, see
+//          ll::parser::standard::init_input for
+//          guidance
+//     (2b) call ll::parser_standard::define_standard
+//                  ( parser, components )
+//          if desired 
+//  (3) call init_input_... and init_printer_...
+//  (4) call parse
+//  (5) call init_input_... to change input
+//  (6) call parse
+//  ... etc. ...
+
 // This `init' function creates a parser and stores a
 // pointer to it in the argument variable, if the
 // variable's previous value is NULL_STUB.  The variable
@@ -1464,7 +1481,7 @@ void init_input_string
 // the corresponding min::init_... function for
 // parser->printer.
 //
-void init_ostream
+void init_printer_ostream
 	( ll::parser::parser parser,
 	  std::ostream & ostream );
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 26 08:32:42 PM EDT 2025
+// Date:	Mon May 26 11:43:06 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,9 +31,7 @@ int main ( int argc, const char * argv[] )
     // Set to allow PRIM functions to print error
     // messages.
     //
-    min::init_printer
-        ( PAR::input_file_ref(PAR::default_parser),
-	  PAR::default_parser->printer );
+    mexcom::printer = PAR::default_parser->printer;
     mexcom::input_file =
         PAR::default_parser->input_file;
 

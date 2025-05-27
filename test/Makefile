@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Feb  7 07:16:04 PM EST 2025
+# Date:		Mon May 26 08:32:57 PM EDT 2025
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -693,6 +693,7 @@ ll_parser_standard_test:		\
 	    Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
+	    -I ${MEX}/include \
 	    -o $@ \
 	    ll_parser_standard_test.cc \
 	    ${PARSER_O}

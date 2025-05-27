@@ -1,8 +1,8 @@
-// Layered Languages Standard Print Test
+// Layered Languages Standard Test
 //
-// File:	ll_parser_standard_print_test.cc
+// File:	ll_parser_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 24 09:22:26 PM EDT 2025
+// Date:	Mon May 26 08:32:42 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10,6 +10,7 @@
 
 # include <ll_parser.h>
 # include <ll_parser_standard.h>
+# include <mexcom.h>
 # include <iostream>
 # include <cassert>
 # define PAR ll::parser
@@ -26,6 +27,15 @@ int main ( int argc, const char * argv[] )
 	  min::marked_line_format );
     PAR::init_printer_ostream
         ( PAR::default_parser, std::cout );
+
+    // Set to allow PRIM functions to print error
+    // messages.
+    //
+    min::init_printer
+        ( PAR::input_file_ref(PAR::default_parser),
+	  PAR::default_parser->printer );
+    mexcom::input_file =
+        PAR::default_parser->input_file;
 
     PAR::parse();
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 23 09:44:06 PM EDT 2025
+// Date:	Mon May 26 08:30:54 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -341,17 +341,6 @@ void PARSTD::define_primary
         mexcom::compile_error;
     PRIM::compile_warn_function =
         mexcom::compile_warn;
-    min::init ( PAR::printer_ref ( parser ) );
-    min::init ( PAR::input_file_ref ( parser ) );
-    min::init_printer
-        ( PAR::input_file_ref(parser),
-	  parser->printer );
-    mexcom::input_file = parser->input_file;
-        // Printer and input_file will be attached to
-	// input and output streams or files later,
-	// but here we must be sure they exist and
-	// parser->printer == parser->input_file->
-	// printer.
 
     PRIM::primary_pass pass =
         PRIM::init_primary ( parser );

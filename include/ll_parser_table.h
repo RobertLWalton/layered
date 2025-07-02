@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 23 08:55:30 AM EST 2024
+// Date:	Wed Jul  2 07:26:59 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -292,12 +292,9 @@ MIN_REF ( min::gen, label,
 // the all the key elements of K but the last.
 //
 // The hash code of a key_prefix is the hash code of its
-// key.  More specifically, if the key has just one
-// element, which must necessarily be a symbol, the hash
-// is the hash of that element, and if the key has more
-// than one element, the hash is the hash as per
-// min::labhash of the min::gen label made from the
-// key elements.
+// key, treated as a label.  If the key has just one
+// element, which must necessarily be a symbol, the key
+// is treated as a label with one element.
 //
 struct key_prefix_struct;
 typedef min::packed_struct_updptr<key_prefix_struct>
@@ -335,6 +332,11 @@ struct key_prefix_struct
 	// the key of this key prefix, or NULL_STUB
 	// if none.  The keys are in most recently
 	// added first order.
+
+    uns32 hash;
+        // Work area used by scan_primary. Hash value
+	// of key if next vector element is a number,
+	// else zero.
 };
 
 MIN_REF ( min::gen, key_element,

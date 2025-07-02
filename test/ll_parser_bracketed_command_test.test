@@ -1,16 +1,16 @@
 *PARSER*:
     print bracket ""
-        block TOP LEVEL: bracket "``" ... "''" [data]
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
                          with parsing selectors [data]
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
+        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+        block TOP LEVEL: bracket "``" ... "''" [data]
         block TOP LEVEL: bracket "(" ... ")" [data]
         block TOP LEVEL: bracket "[" ... "]" [data]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [data]
-        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                          with parsing selectors [data]
                          with special reformatter
@@ -88,6 +88,8 @@ ERROR: in line ##: expected quoted name after:
     define indentation mark ":" ... ";"
                             [code, math, text]
     print indentation mark ":"
+        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
+                         [TOP LEVEL]
         block TOP LEVEL: indentation mark ":" ... ";" [text, code, math]
                          with parsing options [- end at indent,
                                                + end at le indent,
@@ -95,8 +97,6 @@ ERROR: in line ##: expected quoted name after:
                                                - end at paragraph break,
                                                + end at line separator,
                                                + end at outer closing]
-        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
-                         [TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
@@ -343,14 +343,19 @@ WARNING: in line ###: undefine found no definition:
     define bracket "```" ... "'''" [code]
         with parsing options []
     print bracket ""
-        block TOP LEVEL: bracket "``" ... "''" [data]
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
                          with parsing selectors [data]
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
+        block TOP LEVEL: bracket "<+" ... "+>" [code, operator 1]
+                         with parsing selectors [^ code, - math,
+                                                 + operator 1]
+        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+        block TOP LEVEL: bracket "``" ... "''" [data]
         block TOP LEVEL: bracket "(" ... ")" [text, code, math]
         block TOP LEVEL: bracket "(" ... ")" [data]
+        block TOP LEVEL: bracket [< "<" "|" >] ... [< "|" ">" >] []
         block TOP LEVEL: bracket "[" ... "]" [text, code, math]
         block TOP LEVEL: bracket "[" ... "]" [data]
         block BLOCK1: bracket "`" ... "'" [code]
@@ -358,11 +363,6 @@ WARNING: in line ###: undefine found no definition:
                          with parsing selectors [data]
         block BLOCK1: bracket "```" ... "'''" [code]
                       with parsing options []
-        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
-        block TOP LEVEL: bracket [< "<" "|" >] ... [< "|" ">" >] []
-        block TOP LEVEL: bracket "<+" ... "+>" [code, operator 1]
-                         with parsing selectors [^ code, - math,
-                                                 + operator 1]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                          with parsing selectors [data]
                          with special reformatter

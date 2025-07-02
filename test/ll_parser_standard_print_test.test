@@ -56,13 +56,6 @@
         block standard: "#"
         block TOP LEVEL: disabled
     print bracket ""
-        block standard: bracket "``" ... "''" [code, label, text, math]
-                        with parsing selectors [- code, - label, + text,
-                                                - math]
-                        with parsing options [+ enable table prefix]
-                        with text reformatter ( "s", ".", "?", "!", ":",
-                        ";" )
-        block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
                         [code, label, text, math]
                         with parsing selectors [label]
@@ -74,6 +67,18 @@
                         with multivalue reformatter ( "," )
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
+        block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
+                        [code, label, text, math]
+                        with parsing selectors [- code, - label, - text,
+                                                + math]
+        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+        block standard: bracket "``" ... "''" [code, label, text, math]
+                        with parsing selectors [- code, - label, + text,
+                                                - math]
+                        with parsing options [+ enable table prefix]
+                        with text reformatter ( "s", ".", "?", "!", ":",
+                        ";" )
+        block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket "(" ... ")" [code, label, text, math]
         block TOP LEVEL: bracket "(" ... ")" [data]
         block standard: bracket "[" ... "]" [code, label, text, math]
@@ -85,11 +90,6 @@
                                                 - math]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [data]
-        block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
-                        [code, label, text, math]
-                        with parsing selectors [- code, - label, - text,
-                                                + math]
-        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block standard: bracket [< "(" "*" >] ... [< "*" ")" >]
                         [data, code, label, text, math]
                         with parsing selectors [code]
@@ -101,6 +101,8 @@
                          with parsing selectors [data]
                          with special reformatter
     print indentation mark ""
+        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
+                         [TOP LEVEL]
         block standard: indentation mark ":" [data paragraph]
                         with parsing selectors [data]
                         with parsing options [- end at indent,
@@ -128,8 +130,6 @@
                                               + end at outer closing]
                         with paragraph lexical master "PARAGRAPH-CHECK"
                         with line lexical master "DATA-CHECK"
-        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
-                         [TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
@@ -172,6 +172,31 @@
                          with attribute multivalue initiator [< "{" "*" >]
                          with prefix selectors []
     print bracket type ""
+        block standard: bracket type "table" [code, text]
+                        with parsing selectors [text]
+                        with parsing options [- end at line separator]
+                        with group *PARAGRAPH*
+                        with line lexical master "ROW-CHECK"
+        block standard: bracket type "row" [text]
+                        with group *LINE*
+        block standard: bracket type "*DATA*"
+                        [TOP LEVEL, data, code, text, math]
+                        with parsing selectors [+ data paragraph]
+                        with parsing options [- enable prefix,
+                                              - enable table prefix,
+                                              - enable header]
+                        with group *LINE*
+                        with data reformatter ( "@@@@", ":=",
+                        {|":" "::"|}, "=", "no", "[", [< "{" "*" >] )
+        block standard: bracket type [< "*RAW*" "*DATA*" >]
+                        [TOP LEVEL, data, code, text, math]
+                        with parsing selectors [data, data paragraph]
+                        with parsing options [- enable prefix,
+                                              - enable table prefix,
+                                              - enable header]
+                        with group *LINE*
+                        with data reformatter ( "@@@@", ":=",
+                        {|":" "::"|}, "=", "no", "[", [< "{" "*" >] )
         block standard: bracket type "p" [code, text]
                         with parsing selectors [- data, - code, + text,
                                                 - math]
@@ -200,15 +225,6 @@
                                               + enable table prefix]
                         with group *PARAGRAPH*
                         with implied subprefix {s}
-        block standard: bracket type [< "*RAW*" "*DATA*" >]
-                        [TOP LEVEL, data, code, text, math]
-                        with parsing selectors [data, data paragraph]
-                        with parsing options [- enable prefix,
-                                              - enable table prefix,
-                                              - enable header]
-                        with group *LINE*
-                        with data reformatter ( "@@@@", ":=",
-                        {|":" "::"|}, "=", "no", "[", [< "{" "*" >] )
         block standard: bracket type "section" [code, text]
                         with parsing selectors [- data, - code, + text,
                                                 - math]
@@ -224,24 +240,70 @@
                         with implied subprefix {s}
         block standard: bracket type "***" [TOP LEVEL, code, text]
                         with group *RESET*
-        block standard: bracket type "table" [code, text]
-                        with parsing selectors [text]
-                        with parsing options [- end at line separator]
-                        with group *PARAGRAPH*
-                        with line lexical master "ROW-CHECK"
-        block standard: bracket type "row" [text]
-                        with group *LINE*
-        block standard: bracket type "*DATA*"
-                        [TOP LEVEL, data, code, text, math]
-                        with parsing selectors [+ data paragraph]
-                        with parsing options [- enable prefix,
-                                              - enable table prefix,
-                                              - enable header]
-                        with group *LINE*
-                        with data reformatter ( "@@@@", ":=",
-                        {|":" "::"|}, "=", "no", "[", [< "{" "*" >] )
     print operator ""
         block standard: operator [< "is" "truth" "value" >] [code]
+                        postfix
+                        with precedence 12000
+                        with unary postfix reformatter
+        block standard: operator [< "is" "string" >] [code]
+                        postfix
+                        with precedence 12000
+                        with unary postfix reformatter
+        block standard: operator [< "is" "infinite" >] [code]
+                        postfix
+                        with precedence 12000
+                        with unary postfix reformatter
+        block standard: operator "<<" [code]
+                        infix
+                        with precedence 13300
+                        with binary reformatter
+        block standard: operator "<=" [code, math]
+                        infix
+                        with precedence 12000
+                        with infix reformatter ( "==", "<=", ">=", "!=",
+                        ">", "<" )
+        block standard: operator "AND" [code, math]
+                        infix
+                        with precedence 11100
+                        with infix reformatter ( "AND" )
+        block standard: operator "repeat" [code]
+                        initial line
+                        with precedence 3000
+        block standard: operator "==" [code, math]
+                        infix
+                        with precedence 12000
+                        with infix reformatter ( "==", "<=", ">=", "!=",
+                        ">", "<" )
+        block standard: operator [< "IOR" "=" >] [code]
+                        infix line
+                        with precedence 1000
+                        with binary reformatter
+        block standard: operator ">=" [code, math]
+                        infix
+                        with precedence 12000
+                        with infix reformatter ( "==", "<=", ">=", "!=",
+                        ">", "<" )
+        block standard: operator ">>" [code]
+                        infix
+                        with precedence 13300
+                        with binary reformatter
+        block standard: operator "IOR" [code]
+                        infix
+                        with precedence 13000
+                        with infix reformatter ( "IOR" )
+        block standard: operator [< "else" "if" >] [code]
+                        prefix line
+                        with precedence 0
+                        with control reformatter ( *TRUE*, ":" )
+        block standard: operator "?=" [code]
+                        infix
+                        with precedence 3000
+                        with binary reformatter
+        block standard: operator "OR" [code, math]
+                        infix
+                        with precedence 11100
+                        with infix reformatter ( "OR" )
+        block standard: operator [< "is" "undefined" "number" >] [code]
                         postfix
                         with precedence 12000
                         with unary postfix reformatter
@@ -277,6 +339,10 @@
                         infix
                         with precedence 13100
                         with binary reformatter
+        block standard: operator [< "is" "finite" >] [code]
+                        postfix
+                        with precedence 12000
+                        with unary postfix reformatter
         block standard: operator ":" [code]
                         right afix line
                         with precedence 0
@@ -307,70 +373,14 @@
                         infix
                         with precedence 13300
                         with binary reformatter
-        block standard: operator [< "is" "string" >] [code]
-                        postfix
-                        with precedence 12000
-                        with unary postfix reformatter
-        block standard: operator [< "is" "infinite" >] [code]
-                        postfix
-                        with precedence 12000
-                        with unary postfix reformatter
-        block standard: operator [< "IOR" "=" >] [code]
-                        infix line
-                        with precedence 1000
-                        with binary reformatter
-        block standard: operator "do" [code]
-                        initial line
-                        with precedence 3000
-        block standard: operator "NOT" [code, math]
-                        prefix
-                        with precedence 11200
-                        with unary prefix reformatter
-        block standard: operator [< "else" "if" >] [code]
-                        prefix line
-                        with precedence 0
-                        with control reformatter ( *TRUE*, ":" )
-        block standard: operator "exactly" [code]
-                        right afix line
-                        with precedence 3000
-        block standard: operator "continue" [code]
-                        initial line
-                        with precedence 1000
-                        with exit reformatter
-        block standard: operator [< "is" "undefined" "number" >] [code]
-                        postfix
-                        with precedence 12000
-                        with unary postfix reformatter
-        block standard: operator [< "is" "finite" >] [code]
-                        postfix
-                        with precedence 12000
-                        with unary postfix reformatter
         block standard: operator [< "/" "=" >] [code]
                         infix line
                         with precedence 1000
                         with binary reformatter
-        block standard: operator "MASK" [code]
-                        infix
-                        with precedence 13000
-                        with infix reformatter ( "MASK" )
-        block standard: operator "while" [code]
-                        right line
-                        with precedence 3000
-        block standard: operator "COMPL" [code]
-                        prefix
-                        with precedence 100000
-                        with unary prefix reformatter
         block standard: operator [< "BUT" "NOT" >] [code, math]
                         infix
                         with precedence 11000
                         with binary reformatter
-        block standard: operator "times" [code]
-                        left afix line
-                        with precedence 3000
-        block standard: operator "exit" [code]
-                        initial line
-                        with precedence 1000
-                        with exit reformatter
         block standard: operator [< "is" "false" >] [code]
                         postfix
                         with precedence 12000
@@ -383,32 +393,28 @@
                         postfix
                         with precedence 12000
                         with unary postfix reformatter
-        block standard: operator "if" [code]
-                        prefix line
-                        with precedence 0
-                        with control reformatter ( *TRUE*, ":" )
-        block standard: operator "IF" [code, math]
-                        infix
-                        with precedence 10000
-                        with selector reformatter ( "IF", "ELSE" )
-        block standard: operator "until" [code]
-                        right line
-                        with precedence 3000
         block standard: operator [< "*" "=" >] [code]
                         infix line
                         with precedence 1000
                         with binary reformatter
-        block standard: operator "else" [code]
+        block standard: operator "do" [code]
                         initial line
-                        with precedence 0
-                        with control reformatter ( *FALSE*, ":" )
-        block standard: operator "ELSE" [code, math]
-                        infix afix
-                        with precedence 10000
+                        with precedence 3000
+        block standard: operator "NOT" [code, math]
+                        prefix
+                        with precedence 11200
+                        with unary prefix reformatter
+        block standard: operator "exactly" [code]
+                        right afix line
+                        with precedence 3000
         block standard: operator [< ">>" "=" >] [code]
                         infix line
                         with precedence 1000
                         with binary reformatter
+        block standard: operator "continue" [code]
+                        initial line
+                        with precedence 1000
+                        with exit reformatter
         block standard: operator [< "is" "object" >] [code]
                         postfix
                         with precedence 12000
@@ -424,56 +430,43 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
-        block standard: operator "<<" [code]
-                        infix
-                        with precedence 13300
-                        with binary reformatter
-        block standard: operator "<=" [code, math]
-                        infix
-                        with precedence 12000
-                        with infix reformatter ( "==", "<=", ">=", "!=",
-                        ">", "<" )
         block standard: operator [< "MASK" "=" >] [code]
                         infix line
                         with precedence 1000
                         with binary reformatter
-        block standard: operator "AND" [code, math]
+        block standard: operator "MASK" [code]
                         infix
-                        with precedence 11100
-                        with infix reformatter ( "AND" )
-        block standard: operator "repeat" [code]
-                        initial line
+                        with precedence 13000
+                        with infix reformatter ( "MASK" )
+        block standard: operator "while" [code]
+                        right line
                         with precedence 3000
-        block standard: operator "==" [code, math]
-                        infix
-                        with precedence 12000
-                        with infix reformatter ( "==", "<=", ">=", "!=",
-                        ">", "<" )
         block standard: operator [< "is" "true" >] [code]
                         postfix
                         with precedence 12000
                         with unary postfix reformatter
-        block standard: operator ">=" [code, math]
-                        infix
-                        with precedence 12000
-                        with infix reformatter ( "==", "<=", ">=", "!=",
-                        ">", "<" )
-        block standard: operator ">>" [code]
-                        infix
-                        with precedence 13300
-                        with binary reformatter
-        block standard: operator "IOR" [code]
-                        infix
-                        with precedence 13000
-                        with infix reformatter ( "IOR" )
-        block standard: operator "?=" [code]
-                        infix
+        block standard: operator "COMPL" [code]
+                        prefix
+                        with precedence 100000
+                        with unary prefix reformatter
+        block standard: operator "times" [code]
+                        left afix line
                         with precedence 3000
-                        with binary reformatter
-        block standard: operator "OR" [code, math]
+        block standard: operator "exit" [code]
+                        initial line
+                        with precedence 1000
+                        with exit reformatter
+        block standard: operator "if" [code]
+                        prefix line
+                        with precedence 0
+                        with control reformatter ( *TRUE*, ":" )
+        block standard: operator "IF" [code, math]
                         infix
-                        with precedence 11100
-                        with infix reformatter ( "OR" )
+                        with precedence 10000
+                        with selector reformatter ( "IF", "ELSE" )
+        block standard: operator "until" [code]
+                        right line
+                        with precedence 3000
         block standard: operator [< "XOR" "=" >] [code]
                         infix line
                         with precedence 1000
@@ -482,6 +475,13 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
+        block standard: operator "else" [code]
+                        initial line
+                        with precedence 0
+                        with control reformatter ( *FALSE*, ":" )
+        block standard: operator "ELSE" [code, math]
+                        infix afix
+                        with precedence 10000
         block standard: bracket ":" [code]
                         nofix afix line
                         with precedence 0

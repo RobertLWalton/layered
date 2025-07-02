@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 23 10:35:10 AM EST 2024
+// Date:	Wed Jul  2 07:20:12 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -144,7 +144,7 @@ TAB::key_prefix TAB::find_key_prefix
     // Loop through the elements setting `previous'
     // to the key prefix found for the last element.
     //
-    uns32 hash;
+    uns32 hash = min::labhash_initial;
     uns32 table_len = key_table->length;
     uns32 mask = table_len - 1;
     MIN_REQUIRE ( ( table_len & mask ) == 0 );
@@ -162,14 +162,7 @@ TAB::key_prefix TAB::find_key_prefix
 
 	// Compute hash of this element's key prefix.
 	//
-	if ( i == 0 ) hash = ehash;
-	else
-	{
-	    if ( i == 1 )
-	        hash = min::labhash
-		    ( min::labhash_initial, hash );
-	    hash = min::labhash ( hash, ehash );
-	}
+	hash = min::labhash ( hash, ehash );
 
 	// Locate key prefix as `current'.  If none,
 	// current == NULL_STUB and `last' is last

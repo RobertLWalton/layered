@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 24 09:16:53 PM EDT 2025
+// Date:	Wed Jul  2 07:19:55 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1818,8 +1818,7 @@ TAB::key_prefix PAR::find_key_prefix
 
 	// Compute hash of this element's key prefix.
 	//
-	phash = min::labhash ( phash, hash );
-	if ( previous != NULL_STUB ) hash = phash;
+	hash = min::labhash ( phash, hash );
 
 	// Locate key prefix.
 	//
@@ -1836,6 +1835,7 @@ TAB::key_prefix PAR::find_key_prefix
 	if ( key_prefix == NULL_STUB ) break;
 
 	previous = key_prefix;
+	phash = hash;
 
 	PAR::ensure_next ( parser, current );
 	current = current->next;

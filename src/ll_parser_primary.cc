@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 23 07:24:44 AM EDT 2025
+// Date:	Wed Jul  2 04:37:50 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1169,7 +1169,6 @@ PRIM::func PRIM::scan_func_prototype
 
 static TAB::key_prefix find_key_prefix
     ( min::obj_vec_ptr & vp, min::uns32 & i,
-      min::uns32 & quoted_i,
       TAB::key_table symbol_table )
 {
     if ( symbol_table == min::NULL_STUB )
@@ -1184,42 +1183,40 @@ static TAB::key_prefix find_key_prefix
     while ( i < size )
     {
         min::gen e = vp[i];
-	if ( min::is_obj ( e ) )
+	if ( previous != min::NULL_STUB
+	     &&
+	     previous->hash != 0 )
 	{
-	    e = PAR::quoted_string_value ( e );
-	    if ( e != min::NONE() )
+	    e = PRIMLEX::parentheses;
+	    previous->hash = 0;
+	}
+	else
+	{
+	    min::obj_vec_ptr vp = e;
+	    if ( vp != min::NULL_STUB )
 	    {
-		if ( i < quoted_i ) quoted_i = i;
-	    }
-	    else
-	    {
-	        min::gen initiator =
-		    min::get
-		        ( vp[i], min::dot_initiator );
-		if (    initiator
-		     == PARLEX::left_parenthesis )
-		    e = PRIMLEX::parentheses;
-		else
-		if (    initiator
+	        min::attr_ptr ap = vp;
+		min::locate ( ap, min::dot_initiator );
+		if (    min::get ( ap )
 		     == PARLEX::left_square )
 		    e = PRIMLEX::square_brackets;
 		else
-		if ( initiator == min::NONE()
-		     &&
-		     PAR::is_purelist ( vp[i] ) )
 		    e = PRIMLEX::parentheses;
-		else
-		    break;
 	    }
+	    else if ( min::is_str ( e ) )
+	        /* Do Nothing */;
+	    else if ( previous == min::NULL_STUB )
+		e = PRIMLEX::parentheses;
+	    else if ( ! min::is_name ( e ) )
+		e = PRIMLEX::parentheses;
+	    else if ( min::is_num ( e ) )
+	        previous->hash = phash;
 	}
-	if ( ! min::is_name ( e ) )
-	    break;
 	min::uns32 hash = min::hash ( e );
 
 	// Compute hash of this elements key prefix.
 	//
-	phash = min::labhash ( phash, hash );
-	if ( previous != min::NULL_STUB ) hash = phash;
+	hash = min::labhash ( phash, hash );
 
 	// Locate key prefix.
 	//
@@ -1233,13 +1230,69 @@ static TAB::key_prefix find_key_prefix
 		break;
 	    key_prefix = key_prefix->next;
 	}
-	if ( key_prefix == min::NULL_STUB ) break;
+	if ( key_prefix == min::NULL_STUB )
+	{
+	    if ( previous != min::NULL_STUB
+	         &&
+		 previous->hash != 0 )
+	        continue;
+	    else break;
+	}
 	previous = key_prefix;
+	phash = hash;
 	++ i;
     }
 
     return previous;
 }
+
+static TAB::key_prefix previous_key_prefix
+    ( min::uns32 & i,
+      TAB::key_prefix key_prefix,
+      TAB::key_table symbol_table )
+{
+    if ( key_prefix == min::NULL_STUB )
+        return min::NULL_STUB;
+
+    min::uns32 tab_len = symbol_table->length;
+    min::uns32 mask = tab_len - 1;
+
+    TAB::key_prefix previous = key_prefix->previous;
+    if ( previous == min::NULL_STUB )
+	return min::NULL_STUB;
+
+    -- i;
+    if ( previous->hash != 0 )
+    {
+	min::gen e = PRIMLEX::parentheses;
+	min::uns32 hash = min::hash ( e );
+
+	// Compute hash of this elements key prefix.
+	//
+	hash = min::labhash ( previous->hash, hash );
+
+	previous->hash = 0;
+
+	// Locate key prefix.
+	//
+	key_prefix = symbol_table[hash & mask];
+	while ( key_prefix != min::NULL_STUB )
+	{
+	    if ( key_prefix->key_element == e
+		 &&
+		 key_prefix->previous == previous )
+		break;
+	    key_prefix = key_prefix->next;
+	}
+	if ( key_prefix != min::NULL_STUB )
+	{
+	    ++ i;
+	    return key_prefix;
+	}
+    }
+    return previous;
+}
+
 
 bool PRIM::scan_primary
     ( min::obj_vec_ptr & vp, min::uns32 & i,
@@ -1248,7 +1301,6 @@ bool PRIM::scan_primary
       TAB::flags selectors,
       TAB::key_prefix & key_prefix,
       TAB::root & root,
-      min::uns32 & quoted_i,
       min::ref<argument_vector> argument_vector,
       TAB::key_table symbol_table,
       bool print_rejections,
@@ -1269,10 +1321,9 @@ bool PRIM::scan_primary
 
     if ( key_prefix == min::NULL_STUB )
     {
-        quoted_i = iend;
     	for ( key_prefix =
 	          ::find_key_prefix
-		      ( vp, i, quoted_i, symbol_table );
+		      ( vp, i, symbol_table );
 	      key_prefix != min::NULL_STUB;
 	      key_prefix = key_prefix->previous, -- i )
 	for ( root = key_prefix->first;
@@ -1337,10 +1388,9 @@ CHECK_TYPE:
 
     i = original_i;
 
-    if ( (   func->flags
-	   & (   PRIM::VALUE_OPERATOR
-	       | PRIM::LOGICAL_OPERATOR ) )
-	 && quoted_i >= after_lookup )
+    if (   func->flags
+	 & (   PRIM::VALUE_OPERATOR
+	     | PRIM::LOGICAL_OPERATOR ) )
     {
 
 	min::push(av) = vp[i + 0];
@@ -1613,9 +1663,8 @@ CHECK_TYPE:
 	}
 	else negator = min::NONE();
 
-	min::uns32 quoted_ai = iend;  // Ignored.
     	TAB::key_prefix kp = ::find_key_prefix
-	    ( vp, i, quoted_ai, func->term_table );
+	    ( vp, i, func->term_table );
 
 	if ( kp == min::NULL_STUB )
 	{
@@ -2281,10 +2330,9 @@ static min::gen primary_pass_command
 	parser->printer
 	    << min::set_indent ( indent );
 
-	min::uns32 quoted_i;
 	bool found = PRIM::scan_primary
 	    ( nvp, ni, nppvec, parser, selectors,
-	      key_prefix, root, quoted_i,
+	      key_prefix, root,
 	      argument_vector,
 	      primary_pass->primary_table,
 	      true );

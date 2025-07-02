@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 11 03:40:10 AM EDT 2025
+// Date:	Wed Jul  2 03:55:00 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -836,13 +836,6 @@ ll::parser::primary::func scan_func_prototype
 // legal in a variable or function term name, they will
 // not be found in the symbol table.
 //
-// Quoted_i is set to the smallest i value for which
-// vp[i] is a quoted string, or to the size of vp if
-// there is no quoted string.  It can be used, for
-// example, to reject variable names containing a quoted
-// string.  Like i, it must be left untouched when
-// re-calling this function.
-//
 // If print_rejections is true, rejection of a function
 // prototype because of argument structure causes a
 // REJECT: ... message to be printed.
@@ -886,7 +879,6 @@ bool scan_primary
       ll::parser::table::flags selectors,
       ll::parser::table::key_prefix & key_prefix,
       ll::parser::table::root & root,
-      min::uns32 & quoted_i,
       min::ref<argument_vector> argument_vector,
       ll::parser::table::key_table symbol_table,
       bool print_rejections = false,

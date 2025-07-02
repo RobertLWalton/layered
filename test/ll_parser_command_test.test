@@ -134,17 +134,17 @@ INDENT: line ##:
                                                enable indented paragraph,
                                                enable header]
     print bracket ""
-        block TOP LEVEL: bracket "``" ... "''" [data]
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
                          with parsing selectors [data]
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
+        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+        block TOP LEVEL: bracket "``" ... "''" [data]
         block TOP LEVEL: bracket "(" ... ")" [data]
         block TOP LEVEL: bracket "[" ... "]" [data]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [data]
-        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                          with parsing selectors [data]
                          with special reformatter

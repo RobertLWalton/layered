@@ -21,6 +21,13 @@
     define primary separator "C" [code]
            following "A" "B" "C"
     print primary separator ""
+        block standard: primary separator "with" [code]
+                        following "a" "the" [< "of" "the" >] "every"
+        block standard: primary separator "of" [code]
+                        following "the" [< "of" "the" >]
+        block standard: primary separator "every" [code]
+        block standard: primary separator [< "of" "the" >] [code]
+                        following "the" [< "of" "the" >]
         block BLOCK1: primary separator "A" [code]
         block BLOCK1: primary separator "B" [code]
                       following "A"
@@ -33,13 +40,6 @@
                         following "with" "and"
         block standard: primary separator "a" [code]
         block standard: primary separator "the" [code]
-        block standard: primary separator [< "of" "the" >] [code]
-                        following "the" [< "of" "the" >]
-        block standard: primary separator "with" [code]
-                        following "a" "the" [< "of" "the" >] "every"
-        block standard: primary separator "of" [code]
-                        following "the" [< "of" "the" >]
-        block standard: primary separator "every" [code]
 ======= PARSER TEST: A {|first item|} B {|second item|} C {|third item|}
 ======= PARSER TEST: A {|first item|} C {|second item|} C {|third item|}
 ======= PARSER TEST: A {|first item|} B {|second item B third item|}
@@ -52,6 +52,13 @@
 *PARSER*:
     end block BLOCK1
     print primary separator ""
+        block standard: primary separator "with" [code]
+                        following "a" "the" [< "of" "the" >] "every"
+        block standard: primary separator "of" [code]
+                        following "the" [< "of" "the" >]
+        block standard: primary separator "every" [code]
+        block standard: primary separator [< "of" "the" >] [code]
+                        following "the" [< "of" "the" >]
         block standard: primary separator "in" [code]
                         following "every"
         block standard: primary separator "an" [code]
@@ -59,13 +66,6 @@
                         following "with" "and"
         block standard: primary separator "a" [code]
         block standard: primary separator "the" [code]
-        block standard: primary separator [< "of" "the" >] [code]
-                        following "the" [< "of" "the" >]
-        block standard: primary separator "with" [code]
-                        following "a" "the" [< "of" "the" >] "every"
-        block standard: primary separator "of" [code]
-                        following "the" [< "of" "the" >]
-        block standard: primary separator "every" [code]
 *PARSER*:
     begin block BLOCK1
     define primary variable (* X Y 1 *) [code]

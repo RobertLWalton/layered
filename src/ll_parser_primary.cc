@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  2 04:37:50 PM EDT 2025
+// Date:	Wed Jul  2 09:10:42 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1188,6 +1188,7 @@ static TAB::key_prefix find_key_prefix
 	     previous->hash != 0 )
 	{
 	    e = PRIMLEX::parentheses;
+	    phash = previous->hash;
 	    previous->hash = 0;
 	}
 	else
@@ -1239,6 +1240,7 @@ static TAB::key_prefix find_key_prefix
 	    else break;
 	}
 	previous = key_prefix;
+	previous->hash = 0;
 	phash = hash;
 	++ i;
     }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  2 09:10:42 PM EDT 2025
+// Date:	Thu Jul  3 03:55:09 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1256,9 +1256,6 @@ static TAB::key_prefix previous_key_prefix
     if ( key_prefix == min::NULL_STUB )
         return min::NULL_STUB;
 
-    min::uns32 tab_len = symbol_table->length;
-    min::uns32 mask = tab_len - 1;
-
     TAB::key_prefix previous = key_prefix->previous;
     if ( previous == min::NULL_STUB )
 	return min::NULL_STUB;
@@ -1277,6 +1274,8 @@ static TAB::key_prefix previous_key_prefix
 
 	// Locate key prefix.
 	//
+	min::uns32 tab_len = symbol_table->length;
+	min::uns32 mask = tab_len - 1;
 	key_prefix = symbol_table[hash & mask];
 	while ( key_prefix != min::NULL_STUB )
 	{
@@ -1327,7 +1326,8 @@ bool PRIM::scan_primary
 	          ::find_key_prefix
 		      ( vp, i, symbol_table );
 	      key_prefix != min::NULL_STUB;
-	      key_prefix = key_prefix->previous, -- i )
+	      key_prefix = ::previous_key_prefix
+	          ( i, key_prefix, symbol_table ) )
 	for ( root = key_prefix->first;
 	      root != min::NULL_STUB;
 	      root = root->next )
@@ -1349,7 +1349,8 @@ RETRY:
 	    root = root->next;
 	    while ( root == min::NULL_STUB )
 	    {
-	        key_prefix = key_prefix->previous;
+		key_prefix = ::previous_key_prefix
+		    ( i, key_prefix, symbol_table );
 		-- i;
 		if ( key_prefix == min::NULL_STUB )
 		    return false;

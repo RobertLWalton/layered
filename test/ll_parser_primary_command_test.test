@@ -342,7 +342,7 @@ REJECTING: F(X)G(Y)H(Z)
     -- no definition found
     test primary:  F (A) H (B) G (C) H (D)
 REJECTING: F(X)G(Y)H(Z)
-           prototype variable Z given two values
+            function term H appears twice
     -- no definition found
     test primary:  F (A) H ({|B1|}, {|B2|})
 REJECTING: F(X)G(Y)H(Z)

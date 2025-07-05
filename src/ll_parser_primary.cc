@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul  4 05:55:35 PM EDT 2025
+// Date:	Sat Jul  5 07:16:32 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1303,6 +1303,8 @@ bool PRIM::scan_primary
       TAB::key_prefix & key_prefix,
       TAB::root & root,
       min::ref<argument_vector> argument_vector,
+      min::ref<argument_list_vector>
+          argument_list_vector,
       TAB::key_table symbol_table,
       bool print_rejections,
       min::gen bool_values,
@@ -1319,6 +1321,16 @@ bool PRIM::scan_primary
     PRIM::argument_vector av = argument_vector;
 	// Get rid of min::ref.
     min::pop ( av, av->length );
+
+    if ( argument_list_vector == min::NULL_STUB )
+        argument_list_vector =
+	   (PRIM::argument_list_vector)
+	    min::uns32_packed_vec_type.new_stub
+	        ( iend - i );
+
+    PRIM::argument_list_vector alv =
+        argument_list_vector;
+    min::pop ( alv, alv->length );
 
     if ( key_prefix == min::NULL_STUB )
     {
@@ -1339,8 +1351,6 @@ bool PRIM::scan_primary
     }
 
 RETRY:
-
-    min::pop ( av, av->length );
 
     {
         MIN_REQUIRE ( root != min::NULL_STUB );
@@ -1414,6 +1424,12 @@ CHECK_TYPE:
     min::uns32 number_args = func->args->length;
         // Will be shortened for operator calls.
     PRIM::func_term func_term = min::NULL_STUB;
+    min::uns32 arg_lists[func->arg_lists->length];
+    min::uns32 NO_ARG_LIST = (min::uns32) -1;
+    for ( uns32 k = 0; k < func->args->length; ++ k )
+        arg_lists[k] = NO_ARG_LIST;
+    min::uns32 number_arg_lists =
+        func->arg_lists->length;
     while ( true )
     {
 #       define TERM ( func_term == min::NULL_STUB ? \
@@ -1430,6 +1446,19 @@ CHECK_TYPE:
         for ( ; j < jend; ++ j )
 	{
 	    arg_list = func->arg_lists[j];
+	    if ( arg_lists[j] == NO_ARG_LIST )
+		arg_lists[j] = i;
+	    else
+	    {
+	        if ( print_rejections )
+		    ::print_reject
+			( parser, func,
+			  " function term ",
+			  min::pgen_name ( TERM ),
+			  " appears twice" );
+		goto REJECT;
+	    }
+
 #	    define VAR(k) min::pgen_name \
                 ( (func->args + k)->name )
 	    if ( i >= iend )
@@ -1760,6 +1789,8 @@ CHECK_TYPE:
 	min::push(av) = args[k];
 	    // Push one at a time to update
 	    // gc flags properly.
+
+    min::push ( alv, number_arg_lists, arg_lists );
 
     return true;
 
@@ -2346,6 +2377,8 @@ static min::gen primary_pass_command
         TAB::key_prefix key_prefix = min::NULL_STUB;
 	min::locatable_var<PRIM::argument_vector>
 	    argument_vector ( min::NULL_STUB );
+	min::locatable_var<PRIM::argument_list_vector>
+	    argument_list_vector ( min::NULL_STUB );
 	if ( ni >= nsize )
 	    return PAR::parse_error
 		( parser, nppvec->position,
@@ -2371,6 +2404,7 @@ static min::gen primary_pass_command
 	    ( nvp, ni, nppvec, parser, selectors,
 	      key_prefix, root,
 	      argument_vector,
+	      argument_list_vector,
 	      primary_pass->primary_table,
 	      true );
 

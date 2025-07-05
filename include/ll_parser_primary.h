@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul  4 05:49:57 PM EDT 2025
+// Date:	Sat Jul  5 04:59:43 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -811,7 +811,8 @@ ll::parser::primary::func scan_func_prototype
 // the end of vp, else the scan fails.
 //
 // True is returned if a primary_table entry was found,
-// and false otherwise.
+// and false otherwise.  If true is returned, the entry
+// is in the root variable.
 //
 // The first call to this function for a particular vp
 // and i should have key_prefix = NULL_STUB.  If after
@@ -822,7 +823,7 @@ ll::parser::primary::func scan_func_prototype
 // function with i, root, and key_prefix left as they
 // were set by the last call.  This function can be
 // re-called in this manner until the result is
-// satisfactory or the function returns false.
+// satisfactory or this function returns false.
 //
 // The argument_vector is always allocated if it is
 // initially NULL_STUB.  For variables, the [] bracketed
@@ -838,10 +839,18 @@ ll::parser::primary::func scan_func_prototype
 // is automatically rejected just as if it had the
 // wrong selectors.
 //
-// This function treats quoted string elements of vp
-// as if they were MIN strings.  Should they not be
-// legal in a variable or function term name, they will
-// not be found in the symbol table.
+// For functions the vp indeces of the argument lists
+// are returned in argument_list_vector, in left to
+// right prototype order.
+//
+// This function supports naked argument lists.  These
+// are numbers, quoted strings, and objects that do not
+// have .initiator '(' or '[' or .terminator INDENTED_
+// PARAGRAPH.  These argument lists are naked in that
+// the () parentheses that should surround them have
+// been omitted.  The argument_list_vector can be used
+// with ppvec to determine the phrase_positions of naked
+// argument lists.
 //
 // If print_rejections is true, rejection of a function
 // prototype because of argument structure causes a
@@ -879,6 +888,8 @@ ll::parser::primary::func scan_func_prototype
 //
 typedef min::packed_vec_insptr<min::gen>
     argument_vector;
+typedef min::packed_vec_insptr<min::uns32>
+    argument_list_vector;
 bool scan_primary
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       min::phrase_position_vec ppvec, // of vp
@@ -887,6 +898,8 @@ bool scan_primary
       ll::parser::table::key_prefix & key_prefix,
       ll::parser::table::root & root,
       min::ref<argument_vector> argument_vector,
+      min::ref<argument_list_vector>
+          argument_list_vector,
       ll::parser::table::key_table symbol_table,
       bool print_rejections = false,
       min::gen bool_values = func_bool_values,

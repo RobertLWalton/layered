@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  5 07:16:32 AM EDT 2025
+// Date:	Sat Jul  5 04:35:02 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -361,7 +361,8 @@ PRIM::func PRIM::push_builtin_func
 	PRIM::push_arg ( func, A, min::NONE() );
     }
     PRIM::push_arg_list
-	( func, func_name, number_of_arguments, 0, 1,
+	( func, func_name, number_of_arguments,
+	  0, number_of_arguments,
 	  PRIMLEX::parentheses );
     func->number_following_arg_lists = 1;
 
@@ -1405,6 +1406,8 @@ CHECK_TYPE:
 	 & (   PRIM::VALUE_OPERATOR
 	     | PRIM::LOGICAL_OPERATOR ) )
     {
+        // Must intercept here because of multiple
+	// operator expressions like X + Y + Z.
 
 	min::push(av) = vp[i + 0];
 	if ( i + 2 < iend )  // For unary postfix op.
@@ -1701,11 +1704,15 @@ CHECK_TYPE:
 		  "number of argument lists before"
 		  " first function term does not match"
 		  " func->label" );
-	    min::locatable_gen first_call_term_name
-	        ( PRIM::scan_call_term_name ( vp, i ) );
 	    MIN_ASSERT
-	        ( first_call_term_name != min::NONE(),
-		  "first call term name missing" );
+	        ( func->first_term_name != min::NONE(),
+		  "func->first_term_name missing" );
+
+	    min::lab_ptr lp = func->first_term_name;
+	    min::uns32 n =
+	        ( lp == min::NULL_STUB ?
+		      1 : lablen ( lp ) );
+	    i += n;
 
 	    jend = j + func->number_following_arg_lists;
 	    first = false;

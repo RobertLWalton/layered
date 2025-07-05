@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  3 03:55:09 AM EDT 2025
+// Date:	Fri Jul  4 05:55:35 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1423,6 +1423,10 @@ CHECK_TYPE:
 	PRIM::arg_list_struct arg_list;
 	    // For an is_bool term this will be the
 	    // one and only arg_list;
+	bool purelist_found;
+	min::gen initiator;
+	min::gen terminator;
+	min::gen separator;
         for ( ; j < jend; ++ j )
 	{
 	    arg_list = func->arg_lists[j];
@@ -1431,33 +1435,29 @@ CHECK_TYPE:
 	    if ( i >= iend )
 	        goto END_OF_PRIMARY;
 
+	    initiator = min::NONE();
+	    terminator = min::NONE();
+	    separator = min::NONE();
 	    {
-	        // Goto PURELIST_FOUND, END_OF_PRIMARY,
-		// MISMATCH_FOUND, or ACCEPT.
+	        // Goto PURELIST, END_OF_PRIMARY,
+		// MISMATCH_FOUND, NAKED_ARGUMENT,
+		// or ACCEPT_LIST.
 		//
-	        min::lab_ptr lp = arg_list.brackets;
-		MIN_ASSERT ( lp != min::NULL_STUB
-		             &&
-			     min::lablen ( lp ) == 2,
-			     "bad arg_list.brackets");
-
 	        min::obj_vec_ptr evp = vp[i];
 		if ( evp == min::NULL_STUB )
-		    goto END_OF_PRIMARY;
+		    goto NAKED_ARGUMENT;
 		min::attr_ptr eap = evp;
 		min::attr_info info[4];
 		min::unsptr c = min::attr_info_of
 		    ( info, 4, eap );
-		if ( c == 0 ) goto PURELIST_FOUND;
-		min::gen initiator = min::NONE();
-		min::gen terminator = min::NONE();
+		if ( c == 0 ) goto PURELIST;
 		for ( min::uns32 k = 0; k < c; ++ k )
 		{
 		    if (    info[k].name
 		         == min::dot_position )
 		    {
 			if ( c == 1 )
-			    goto PURELIST_FOUND;
+			    goto PURELIST;
 		        continue;
 		    }
 		    else if (    info[k].name
@@ -1468,10 +1468,10 @@ CHECK_TYPE:
 		        terminator = info[k].value;
 		    else if (    info[k].name
 		              == min::dot_separator )
-			continue;
+		        separator = info[k].value;
 		    else if (    info[k].name
 		              == min::dot_type )
-		        goto END_OF_PRIMARY;
+		        continue;
 		    else
 		    {
 		        parser->printer
@@ -1488,14 +1488,29 @@ CHECK_TYPE:
 			      " attribute)" );
 		    }
 		}
-		if ( initiator == lp[0]
-		     &&
-		     terminator == lp[1] )
-		    goto ACCEPT;
 		if (    terminator
 		     == min::INDENTED_PARAGRAPH() )
 		    goto END_OF_PRIMARY;
-		goto MISMATCH_FOUND;
+		else if (    initiator
+		          == PARLEX::left_parenthesis )
+		{
+		    if (    arg_list.brackets
+			 == PRIMLEX::parentheses )
+			    goto ACCEPT_LIST;
+		    else
+			goto MISMATCH_FOUND;
+		}
+		else if (    initiator
+		          == PARLEX::left_square )
+		{
+		    if (    arg_list.brackets
+			 == PRIMLEX::square_brackets )
+			    goto ACCEPT_LIST;
+		    else
+			goto MISMATCH_FOUND;
+		}
+		else
+		     goto NAKED_ARGUMENT;
 	    }
 	END_OF_PRIMARY:
 	    if ( arg_list.number_required_args == 0 )
@@ -1505,14 +1520,63 @@ CHECK_TYPE:
 		    ( parser, func, "",
 		      min::pgen_name
 			 ( arg_list.brackets ),
-		      " bracketed argument"
-		      " list expected but end"
+		      " arguments expected but end"
 		      " of primary found" );
 	    goto REJECT;
-	PURELIST_FOUND:
+
+	PURELIST:
+	    purelist_found = true;
+	NAKED_ARGUMENT:
 	    if (    arg_list.brackets
-	         == PRIMLEX::parentheses )
-	        goto ACCEPT;
+	         != PRIMLEX::parentheses )
+	    {
+		if ( print_rejections )
+		    ::print_reject
+			( parser, func,
+			  purelist_found ?
+			      "purelist" :
+			      "naked argument",
+			  min::pnop,
+			  " found for ",
+			  VAR ( arg_list.first ),
+			  " [] bracketed argument"
+			  " list" );
+		goto REJECT;
+	    }
+	    else
+	    if ( arg_list.number_required_args > 1 )
+	    {
+		if ( print_rejections )
+		    ::print_reject
+			( parser, func,
+			  purelist_found ?
+			      "purelist" :
+			      "naked argument",
+			  min::pnop,
+			  " found for ",
+			  VAR ( arg_list.first ),
+			  " argument list that"
+			  " requires two or more"
+			  " arguments" );
+		goto REJECT;
+	    }
+	ACCEPT_SINGLETON:
+	    arg_list_found = true;
+	    if (    args[arg_list.first]
+		 != min::NONE() )
+	    {
+		if ( print_rejections )
+		    ::print_reject
+			( parser, func,
+			  "prototype variable ",
+			  VAR ( arg_list.first ),
+			  " given two values" );
+		goto REJECT;
+	    }
+	    args[arg_list.first] = vp[i];
+	    ++ i;
+	    continue;
+
 	MISMATCH_FOUND:
 	    if ( arg_list.number_required_args == 0 )
 	        continue;
@@ -1527,50 +1591,19 @@ CHECK_TYPE:
 		      " found" );
 	    goto REJECT;
 
-	ACCEPT: // Process actual argument list.
+	ACCEPT_LIST: // Process () or [] bracketed list.
 
-	    arg_list_found = true;
-	    min::gen sep =
-	        min::get ( vp[i], min::dot_separator );
-		// Get before creating avp.
-	    min::obj_vec_ptr avp = vp[i];
-	    min::uns32 as = min::size_of ( avp );
-	    if ( sep == min::NONE() )
+	    if ( separator == min::NONE() )
+	        goto ACCEPT_SINGLETON;
 	    {
-	        if ( as == 0 )
-		{
-		    if ( first )
-		    {
-			if ( print_rejections )
-			    ::print_reject
-				( parser, func,
-				  "empty argument list"
-				  " found before first"
-				  " function-term" );
-			goto REJECT;
-		    }
-		    continue;
-		}
-		if (    args[arg_list.first]
-		     != min::NONE() )
-		{
-		    if ( print_rejections )
-			::print_reject
-			    ( parser, func,
-			      "prototype variable ",
-			      VAR ( arg_list.first ),
-			      " given two values" );
-		    goto REJECT;
-		}
-		args[arg_list.first] = vp[i];
-	    }
-	    else
-	    {
-	        if ( as > arg_list.number_of_args )
+		arg_list_found = true;
+		min::obj_vec_ptr avp = vp[i];
+		min::uns32 as = min::size_of ( avp );
+		if ( as > arg_list.number_of_args )
 		{
 		    avp = min::NULL_STUB;
 		    if ( ! print_rejections )
-		        /* Do nothing */;
+			/* Do nothing */;
 		    else if ( first )
 			::print_reject
 			    ( parser, func,
@@ -1592,7 +1625,7 @@ CHECK_TYPE:
 		for ( min::uns32 k = 0; k < as; ++ k )
 		{
 		    if (    args[arg_list.first + k]
-		         != min::NONE() )
+			 != min::NONE() )
 		    {
 			if ( print_rejections )
 			    ::print_reject
@@ -1605,8 +1638,9 @@ CHECK_TYPE:
 		    }
 		    args[arg_list.first+k] = avp[k];
 		}
+		++ i;
+		continue;
 	    }
-	    ++ i;
 
 #	    undef VAR
 	}

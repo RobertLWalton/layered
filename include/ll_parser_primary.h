@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  5 04:59:43 AM EDT 2025
+// Date:	Sun Jul  6 05:57:53 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -286,13 +286,6 @@ struct func_struct
 	// following the first term name in prototype.
 	// If M>0 the list descriptions are
 	// arg_lists[N] thru arg_lists[N+M-1].
-
-    min::uns32 following_arg_lists_offset;
-        // Offset in a vector being scanned for a
-	// function call primary of the first following
-	// argument list if any; equals the number of
-	// initial argument lists plus the number of
-	// elements in the first_term_name.
 
     const min::gen first_term_name;
         // NONE if no first term.  Used for message

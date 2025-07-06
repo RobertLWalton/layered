@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  5 04:35:02 PM EDT 2025
+// Date:	Sun Jul  6 05:56:09 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1198,6 +1198,10 @@ static TAB::key_prefix find_key_prefix
 	    if ( vp != min::NULL_STUB )
 	    {
 	        min::attr_ptr ap = vp;
+		min::locate ( ap, min::dot_terminator );
+		if (    min::get ( ap )
+		     == min::INDENTED_PARAGRAPH() )
+		    break;
 		min::locate ( ap, min::dot_initiator );
 		if (    min::get ( ap )
 		     == PARLEX::left_square )

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 05:57:53 AM EDT 2025
+// Date:	Mon Jul  7 04:48:47 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -193,6 +193,9 @@ struct arg_struct
     min::gen name;
         // Name of argument variable, or MISSING if
 	// not available due to error.
+    min::uns32 arg_list_index;
+        // Index of arg list containing this argument in
+	// the arg_list vector.
     min::gen default_value;
         // Default value of argument, or NONE if none.
     min::phrase_position pp;
@@ -291,6 +294,13 @@ struct func_struct
         // NONE if no first term.  Used for message
 	// printing, as first term name is also part
 	// of label.
+
+    min::uns32 following_arg_list_offset;
+        // Sum of number_initial_arg_lists and the
+	// number of key symbols in first_term_name.
+	// Offset in vector scanned by scan_primary
+	// of the first arg list following the first
+	// term name.
 };
 
 MIN_REF ( min::gen, label,
@@ -423,12 +433,13 @@ inline ll::parser::primary::func push_logical_func
 inline void push_arg
     ( ll::parser::primary::func func,
       min::gen name,
+      min::uns32 arg_list_index,
       min::gen default_value,
       min::phrase_position pp =
           ll::parser::top_level_position )
 {
     ll::parser::primary::arg_struct arg =
-        { name, default_value, pp };
+        { name, arg_list_index, default_value, pp };
     min::push(func->args) = arg;
     min::unprotected::acc_write_update
         ( func->args, name );
@@ -841,9 +852,11 @@ ll::parser::primary::func scan_func_prototype
 // have .initiator '(' or '[' or .terminator INDENTED_
 // PARAGRAPH.  These argument lists are naked in that
 // the () parentheses that should surround them have
-// been omitted.  The argument_list_vector can be used
-// with ppvec to determine the phrase_positions of naked
-// argument lists.
+// been omitted.  The arg_list_index element of the
+// func->args entry of an argument can be used to index
+// an argument_list_vector element whose value can be
+// used to index ppvec to determine the phrase_position
+// of a naked argument list.
 //
 // If print_rejections is true, rejection of a function
 // prototype because of argument structure causes a

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 05:56:09 AM EDT 2025
+// Date:	Mon Jul  7 04:54:32 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -285,6 +285,10 @@ PRIM::func PRIM::push_op
 	      PAR::top_level_position, 0, 0,
 	      flags, 0, min::MISSING(), 0 ) );
     PRIM::first_term_name_ref(func) = op_name;
+    min::lab_ptr lp = op_name;
+    func->following_arg_list_offset =
+        1 + ( lp == min::NULL_STUB ?
+	          1 : min::lablen ( lp ) );
 
     min::gen labv[3] =
 	{ PRIMLEX::parentheses, op_name,
@@ -299,7 +303,7 @@ PRIM::func PRIM::push_op
 
     // Argument before operator.
     //
-    PRIM::push_arg ( func, X, min::NONE() );
+    PRIM::push_arg ( func, X, 0, min::NONE() );
     PRIM::push_arg_list
 	( func, min::NONE(), 1, 0, 1,
 	  PRIMLEX::parentheses );
@@ -308,7 +312,7 @@ PRIM::func PRIM::push_op
     if ( is_infix )
     {
 	// Argument after operator
-	PRIM::push_arg ( func, Y, min::NONE() );
+	PRIM::push_arg ( func, Y, 1, min::NONE() );
 	PRIM::push_arg_list
 	    ( func, op_name, 1, 1, 1,
 	      PRIMLEX::parentheses );
@@ -337,6 +341,9 @@ PRIM::func PRIM::push_builtin_func
 	      PAR::top_level_position, 0, 0,
 	      flags, 0, min::MISSING(), 0 ) );
     PRIM::first_term_name_ref(func) = func_name;
+    min::lab_ptr lp = func_name;
+    func->following_arg_list_offset =
+        lp == min::NULL_STUB ? 1 : min::lablen ( lp );
 
     min::lab_ptr labp = func_name;
     min::uns32 n = ( labp == min::NULL_STUB ? 1 :
@@ -358,7 +365,7 @@ PRIM::func PRIM::push_builtin_func
 	min::locatable_gen A
 	    ( min::new_str_gen ( aname ) );
 
-	PRIM::push_arg ( func, A, min::NONE() );
+	PRIM::push_arg ( func, A, 0, min::NONE() );
     }
     PRIM::push_arg_list
 	( func, func_name, number_of_arguments,
@@ -748,6 +755,7 @@ min::uns32 PRIM::func_term_table_size = 16;
 
 inline min::uns32 process_arg
     ( PRIM::func func, min::gen arg,
+      min::uns32 arg_list_index,
       const min::phrase_position & pos,
       min::gen default_op,
       PAR::parser parser )
@@ -815,7 +823,8 @@ inline min::uns32 process_arg
 	}
     }
 
-    PRIM::push_arg ( func, name, default_value, pp );
+    PRIM::push_arg ( func, name, arg_list_index,
+                     default_value, pp );
 
     return errors;
 }
@@ -864,6 +873,8 @@ PRIM::func PRIM::scan_func_prototype
 	min::uns32 first_arg_list_i = i;
         while ( i < s && min::is_obj ( vp[i] ) )
 	{
+	    min::uns32 arg_list_index =
+	        func->arg_lists->length;
 	    min::uns32 first = func->args->length;
 	    min::uns32 number_required_args = 0;
 	    min::locatable_gen brackets;
@@ -898,8 +909,8 @@ PRIM::func PRIM::scan_func_prototype
 	        // There is only one argument.
 
 	        errors += ::process_arg
-		    ( func, vp[i], ppvec[i],
-		      default_op, parser );
+		    ( func, vp[i], arg_list_index,
+		      ppvec[i], default_op, parser );
 		if ( first + 1 == func->args->length )
 		{
 		    // Argument created without error.
@@ -943,8 +954,9 @@ PRIM::func PRIM::scan_func_prototype
 		for ( min::uns32 k = 0;
 		      k < alsize; ++ k )
 		    errors += ::process_arg
-			( func, alvp[k], alppvec[k],
-			  default_op, parser );
+			( func, alvp[k], arg_list_index,
+			  alppvec[k], default_op,
+			  parser );
 
 		bool default_found = false;
 		for ( min::uns32 k = 0;
@@ -1050,6 +1062,8 @@ PRIM::func PRIM::scan_func_prototype
 	{
 	    func->number_initial_arg_lists =
 	        number_arg_lists;
+	    func->following_arg_list_offset =
+		number_arg_lists;
 	    if ( term_name == min::NONE() )
 	    {
 	        if ( j < 1 )
@@ -1088,16 +1102,19 @@ PRIM::func PRIM::scan_func_prototype
 	    {
 	        PRIM::first_term_name_ref(func) =
 		    term_name;
+		min::lab_ptr lp = term_name;
+		func->following_arg_list_offset +=
+		    lp == min::NULL_STUB ?
+		        1 : min::lablen ( lp );
 		if ( ! label_done )
 		{
-		    min::lab_ptr labp = term_name;
-		    if ( labp != min::NULL_STUB )
+		    if ( lp != min::NULL_STUB )
 		    {
 			min::uns32 len =
-			    min::lablen ( labp );
+			    min::lablen ( lp );
 			for ( min::uns32 k = 0;
 			      k < len; )
-			    labbuf[j++] = labp[k++];
+			    labbuf[j++] = lp[k++];
 		    }
 		    else
 			labbuf[j++] = term_name;

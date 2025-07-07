@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  7 04:54:32 AM EDT 2025
+// Date:	Mon Jul  7 05:48:28 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1725,15 +1725,7 @@ CHECK_TYPE:
 		  "number of argument lists before"
 		  " first function term does not match"
 		  " func->label" );
-	    MIN_ASSERT
-	        ( func->first_term_name != min::NONE(),
-		  "func->first_term_name missing" );
-
-	    min::lab_ptr lp = func->first_term_name;
-	    min::uns32 n =
-	        ( lp == min::NULL_STUB ?
-		      1 : lablen ( lp ) );
-	    i += n;
+	    i = func->following_arg_list_offset;
 
 	    jend = j + func->number_following_arg_lists;
 	    first = false;

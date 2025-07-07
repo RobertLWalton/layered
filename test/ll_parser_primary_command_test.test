@@ -200,6 +200,20 @@ REJECTING: (A1)"+"(A2)
         block TOP LEVEL: function ((X)is number) with flags  7400004
     test primary:  add (A) (B)
     -- found function:  add (A) (B) ===> *MISSING* 0
+    test primary:  add 5 6
+    -- found function:  add 5 6 ===> *MISSING* 0
+    test primary:  add 5 [66]
+    -- no definition found
+    test primary:  add "HI" (B)
+    -- found function:  add "HI" (B) ===> *MISSING* 0
+    test primary:  add (A) {{B}}
+    -- found function:  add (A) {{B}} ===> *MISSING* 0
+    define primary function (* add 1 (A1) (A2 ?= Q) *) [code]
+    test primary:  add 1 6
+    -- found function:  add 1 6 {|Q|} ===> *MISSING* 0
+    define primary function (* add (A1) (A2) *) [code]
+    test primary:  add 1 6
+    -- found function:  add 1 6 {|Q|} ===> *MISSING* 0
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1

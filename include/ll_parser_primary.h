@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  7 04:48:47 AM EDT 2025
+// Date:	Sun Jul 20 05:41:09 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,7 +40,8 @@ namespace lexeme {
 	location,		// location
 	module,			// module
 	parentheses,		// [< ( ) >]
-	square_brackets;	// [< [ ] >]
+	square_brackets,	// [< [ ] >]
+	argument_list;		// (*)
 }
 
 
@@ -724,19 +725,20 @@ inline min::gen scan_func_term_name
 }
 
 // Scan function label.  vp[i] should be the beginning
-// of a function prototype that may include () and []
-// argument lists before the first function term name.
-// The scan stops at the end of vp or at the first
-// element after initial argument lists that cannot be
-// part of a function term name.
+// of a function prototype that may include argument
+// lists before the first function term name.  The scan
+// stops at the end of vp or at the first element after
+// initial argument lists that cannot be part of a
+// function term name.  Argument lists after the first
+// term name are NOT included in this function label,
+// which means the function label may not be complete.
 //
-// Specifically, a (...) at the beginning of the scan
-// produces the MIN label [< "(" ")" >] in the scan
-// output, and a [...] produces a [< "[" "]" >].  These
-// are followed by the first function term name in the
-// prototype, if there is one.
+// Specifically, argument lists at the beginning of the
+// scan produce the MIN string "(*)" in the scan output.
+// These are followed by the first function term name
+// in the prototype, if there is one.
 //
-// The contents of (...) and [...] are NOT checked.
+// The contents of argument lists are NOT checked.
 // Partial labels are allowed, but the empty label
 // returns min::NONE().  A label with one element is
 // returned as that element, and labels with more
@@ -820,14 +822,13 @@ ll::parser::primary::func scan_func_prototype
 //
 // The first call to this function for a particular vp
 // and i should have key_prefix = NULL_STUB.  If after
-// returning, the result is unsatisfactory because the
-// next vp[i] is not a suitable subsequent vector
-// element, the result can be rejected and the next
-// primary_table entry can be found by re-calling this
-// function with i, root, and key_prefix left as they
-// were set by the last call.  This function can be
-// re-called in this manner until the result is
-// satisfactory or this function returns false.
+// returning, the result is unsatisfactory, the result
+// can be rejected and the next primary_table entry can
+// be found by re-calling this function with i, root,
+// and key_prefix left as they were set by the last
+// call.  This function can be re-called in this manner
+// until the result is satisfactory or this function
+// returns false.
 //
 // The argument_vector is always allocated if it is
 // initially NULL_STUB.  For variables, the [] bracketed
@@ -849,14 +850,18 @@ ll::parser::primary::func scan_func_prototype
 //
 // This function supports naked argument lists.  These
 // are numbers, quoted strings, and objects that do not
-// have .initiator '(' or '[' or .terminator INDENTED_
-// PARAGRAPH.  These argument lists are naked in that
-// the () parentheses that should surround them have
-// been omitted.  The arg_list_index element of the
-// func->args entry of an argument can be used to index
-// an argument_list_vector element whose value can be
-// used to index ppvec to determine the phrase_position
-// of a naked argument list.
+// have .initiator '(' or .terminator INDENTED_PARAGRAPH
+// that are presented as argument lists for which ()
+// brackets are normally required.  These argument lists
+// are naked in that the () parentheses that should
+// surround them have been omitted.  The arg_list_index
+// element of the func->args entry of an argument can be
+// used to index an argument_list_vector element whose
+// value can be used to index ppvec to determine the
+// phrase_position of a naked argument list.
+//
+// Note that a [] bracketed object presented as a ()
+// bracketed argument list is a naked argument.
 //
 // If print_rejections is true, rejection of a function
 // prototype because of argument structure causes a

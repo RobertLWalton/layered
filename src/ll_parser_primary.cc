@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  7 05:48:28 AM EDT 2025
+// Date:	Sun Jul 20 05:41:41 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,6 +45,7 @@ min::locatable_gen PRIMLEX::location;
 min::locatable_gen PRIMLEX::module;
 min::locatable_gen PRIMLEX::parentheses;
 min::locatable_gen PRIMLEX::square_brackets;
+min::locatable_gen PRIMLEX::argument_list;
 static min::locatable_gen left_parenthesis_star;
 static min::locatable_gen test;
 static min::locatable_gen following;
@@ -71,6 +72,7 @@ static void initialize ( void )
         min::new_lab_gen ( "(", ")" );
     PRIMLEX::square_brackets =
         min::new_lab_gen ( "[", "]" );
+    PRIMLEX::argument_list = min::new_str_gen ( "(*)" );
     ::left_parenthesis_star =
         min::new_lab_gen ( "(", "*" );
     ::test = min::new_str_gen ( "test" );
@@ -291,8 +293,8 @@ PRIM::func PRIM::push_op
 	          1 : min::lablen ( lp ) );
 
     min::gen labv[3] =
-	{ PRIMLEX::parentheses, op_name,
-	  PRIMLEX::parentheses };
+	{ PRIMLEX::argument_list, op_name,
+	  PRIMLEX::argument_list };
     PRIM::label_ref(func) =
 	min::new_lab_gen ( labv, is_infix ? 3 : 2 );
 
@@ -353,7 +355,7 @@ PRIM::func PRIM::push_builtin_func
         labbuf[0] = func_name;
     else for ( min::uns32 i = 0; i < n; ++ i )
         labbuf[i] = labp[i];
-    labbuf[n] = PRIMLEX::parentheses;
+    labbuf[n] = PRIMLEX::argument_list;
     PRIM::label_ref(func) =
         min::new_lab_gen ( labbuf, n + 1 );
 
@@ -715,13 +717,9 @@ min::gen PRIM::scan_func_label
     min::uns32 j = 0;
     for ( ; i < s && min::is_obj(vp[i]); ++ i )
     {
-        min::gen initiator =
-	    min::get ( vp[i], min::dot_initiator );
-	if ( initiator == PARLEX::left_parenthesis )
-	    labbuf[j++] = PRIMLEX::parentheses;
-	else
-	if ( initiator == PARLEX::left_square )
-	    labbuf[j++] = PRIMLEX::square_brackets;
+	if (    min::get ( vp[i], min::dot_initiator )
+	     != min::NONE() )
+	    labbuf[j++] = PRIMLEX::argument_list;
 	else
 	    break;
     }
@@ -987,7 +985,8 @@ PRIM::func PRIM::scan_func_prototype
 	    if ( number_required_args > 0 )
 	    {
 	        if ( ! label_done )
-		    labbuf[j++] = brackets;
+		    labbuf[j++] =
+		        PRIMLEX::argument_list;
 	    }
 	    else
 	        label_done = true;
@@ -1205,7 +1204,7 @@ static TAB::key_prefix find_key_prefix
 	     &&
 	     previous->hash != 0 )
 	{
-	    e = PRIMLEX::parentheses;
+	    e = PRIMLEX::argument_list;
 	    phash = previous->hash;
 	    previous->hash = 0;
 	}
@@ -1219,19 +1218,14 @@ static TAB::key_prefix find_key_prefix
 		if (    min::get ( ap )
 		     == min::INDENTED_PARAGRAPH() )
 		    break;
-		min::locate ( ap, min::dot_initiator );
-		if (    min::get ( ap )
-		     == PARLEX::left_square )
-		    e = PRIMLEX::square_brackets;
-		else
-		    e = PRIMLEX::parentheses;
+		e = PRIMLEX::argument_list;
 	    }
 	    else if ( min::is_str ( e ) )
 	        /* Do Nothing */;
 	    else if ( previous == min::NULL_STUB )
-		e = PRIMLEX::parentheses;
+		e = PRIMLEX::argument_list;
 	    else if ( ! min::is_name ( e ) )
-		e = PRIMLEX::parentheses;
+		e = PRIMLEX::argument_list;
 	    else if ( min::is_num ( e ) )
 	        previous->hash = phash;
 	}
@@ -1285,7 +1279,7 @@ static TAB::key_prefix previous_key_prefix
     -- i;
     if ( previous->hash != 0 )
     {
-	min::gen e = PRIMLEX::parentheses;
+	min::gen e = PRIMLEX::argument_list;
 	min::uns32 hash = min::hash ( e );
 
 	// Compute hash of this elements key prefix.
@@ -1544,26 +1538,27 @@ CHECK_TYPE:
 		if (    terminator
 		     == min::INDENTED_PARAGRAPH() )
 		    goto END_OF_PRIMARY;
-		else if (    initiator
-		          == PARLEX::left_parenthesis )
+		else if (    arg_list.brackets
+			  == PRIMLEX::square_brackets )
 		{
-		    if (    arg_list.brackets
-			 == PRIMLEX::parentheses )
-			    goto ACCEPT_LIST;
+		    if (    initiator
+		         == PARLEX::left_square )
+			goto ACCEPT_LIST;
 		    else
 			goto MISMATCH_FOUND;
 		}
-		else if (    initiator
-		          == PARLEX::left_square )
+	        else if (    arg_list.brackets
+	                  == PRIMLEX::parentheses )
 		{
-		    if (    arg_list.brackets
-			 == PRIMLEX::square_brackets )
-			    goto ACCEPT_LIST;
+		    if (    initiator
+		         == PARLEX::left_parenthesis )
+			goto ACCEPT_LIST;
 		    else
-			goto MISMATCH_FOUND;
+			goto NAKED_ARGUMENT;
 		}
 		else
-		     goto NAKED_ARGUMENT;
+		     MIN_ABORT ( "unimplemented"
+		                 " arg_list.brackets" );
 	    }
 	END_OF_PRIMARY:
 	    if ( arg_list.number_required_args == 0 )

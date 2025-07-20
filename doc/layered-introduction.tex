@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 7, 2025
+July 20, 2025
  
 \end{center}
 
@@ -9844,7 +9844,16 @@ equal to the string represented by the lexeme.  Operators and
 primary separators are
 represented by their label, which is either a simple MIN string,
 or is a MIN label (e.g., the MIN strings `\TT{a}' or \TT{+}
-or the MIN label \TT{[< + = >]}).
+or the MIN label \TT{[< + = >]}).  Argument lists are represented
+by objects with an \TT{.initiator} such as `\TT{(}' or `\TT{[}'.
+An argument list with a single argument that should be surrounded
+by `\TT{(~)}'s may be represented by just the argument itself
+(i.e., have the `\TT{(~)}'s omitted from textual input to the parser)
+if the single argument
+is a number or an object (including quoted strings) that does not have
+\TT{.initiator} `\TT{(}' or \TT{.terminator} \TT{INDENTED\_PARAGRAPH}.
+The argument
+in such a list is called \key{naked}.\label{NAKED-ARGUMENT}.
 
 The Layered Language package provides a C++ function \TT{scan\_primary}
 to scan primaries in order to find either:

@@ -179,6 +179,7 @@
 
 \newcommand{\itemref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
+\newcommand{\pagnote}[1]{$\,^{p\pageref{#1}}$}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
@@ -235,7 +236,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 20, 2025
+July 21, 2025
  
 \end{center}
 
@@ -9835,7 +9836,7 @@ in a MIN vector object.  For {\em primaries}, the
 vector object may or may not have
 an \TT{.initiator} and \TT{.terminator}, but will
 \underline{not} have a \TT{.separator}.\footnote{
-Subexpressions of a primary with \TT{.initiator} and \TT{.terminator}
+Subexpressions of a primary that have an \TT{.initiator} and a \TT{.terminator}
 may have a \TT{.separator}.}
 Quoted string lexemes
 within the primary vector object are represented by MIN objects with the
@@ -9888,47 +9889,37 @@ primary pass and stores
 This symbol table has the same organization as other parser
 lookup tables, with each element having a label.  Element
 lookup involves matching a sequence of primary vector elements
-to an element label.  This differs from other parser table
+to an element label.
+This lookup differs from other parser table
 lookups in that primary vector elements are used instead
 of tokens.
 
 The symbol table also has a stack structure, allowing entries
 to be removed in reverse of the order in which they were added.
 
-Some primary vector elements being scanned for symbol table
-lookups are replaced before they become parts of element labels.
-A quoted string \TT{"$S$"} is replaced by $S$.
-A subexpression with \TT{.initiator} $I$ and \TT{.terminator}
-$T$ is replaced by the label \TT{[< $I$ $T$ >]},
-except that a subexpression with
-\underline{no} \TT{.initiator} is replaced by \TT{[< "(" ")" >]}
-(as if the \TT{.initiator} were `\TT{(}').
-Optimizing assumptions are made by the actual \TT{PRIM} code that 
-a subexpression with no \TT{.initiator} has no \TT{.terminator},
-that a subexpression with \TT{"("} \TT{.initiator} has \TT{")"}
-\TT{.terminator}, and that a subexpression with \TT{"["}
-\TT{.initiator} has \TT{"]"} \TT{.terminator}.
-
-A record is kept as to whether a quoted string appeared in a
-particular lookup so that if quoted strings are not allowed
-(as in a variable name) the result of the lookup can be rejected
-(after a rejection a lookup can be continued to find the next
-possible result).
+Some primary vector elements representing argument lists, including
+naked arguments\pagnote{NAKED-ARGUMENT}, are replaced
+by the MIN string \TT{"(*)"} before they are matched to
+symbol table entry label components.
 
 For a \TT{PRIM::var} object its variable name is its label.
+A variable label must consist of a word followed by
+a string of words and/or natural numbers (non-negative integers).
 
 For a \TT{PRIM::func} object its label is the primary vector
 elements that \underline{must} appear at the beginning of any call to
-the function, with replacements as indicated above.
-If a subexpression (i.e., argument list) is optional (all its
+the function, with argument list replacements as indicated above.
+If an argument list is optional (all its
 arguments have default values), it and following lexemes and
-subexpressions that might be in the call are omitted from the label.
-However, a \TT{PRIM::func} label must not consist of just a single
-subexpression replacement.
+argument lists that might be in the call are omitted from the label.
+{\em Call-term-names} other than the first are never included in the label,
+even if they must appear (which would be unusual).
+Additionally, a \TT{PRIM::func} label must not consist of just a single
+argument list replacement.
 
-Thus if \TT{\{| \{|x|\} "+" \{|5|\} |\}} is a primary that calls
+Thus if \TT{\{| \{|x|\} + \{|5|\} |\}} is a primary that calls
 a function, the label of the function called would be: \\
-\centerline{\TT{[< [< "(" ")" >] "+" [< "(" ")" >] >]}}
+\centerline{\TT{[< "(*)" "+" "(*)" >]}}
 
 Both \TT{PRIM::var} and \TT{PRIM::func} C++ object have the following
 members that can be used freely by the compiler to define the
@@ -9967,26 +9958,18 @@ The syntax of the vector elements of a primary recognized by \TT{PRIM} is:
 \\[0.5ex]
 \emkey{call-term} ::= {\em call-term-name} {\em argument-list}\STAR{}
 \\[0.5ex]
-\emkey{variable-name} ::= {\em name-lexeme}\PLUS{}
+\emkey{variable-name} ::= {\em word} \{ {\em word} $|$ {\em natural} \}\STAR{}
 \\[0.5ex]
-\emkey{call-term-name}\label{CALL-TERM-NAME} ::= {\em name-lexeme}\PLUS{}
+\emkey{call-term-name}\label{CALL-TERM-NAME} ::=
+               \begin{tabular}[t]{l}
+               \{ {\em word} $|$ {\em mark}
+			     $|$ {\em separator} \} \\
+               \{ {\em word} $|$ {\em natural}
+	                     $|$ {\em mark}
+			     $|$ {\em separator} \}\STAR{}
+	       \end{tabular}
 \\[0.5ex]
-\emkey{name-lexeme}\label{NAME-LEXEME}
-                    \begin{tabular}[t]{rl}
-		    ::= & {\em number} $|$
-			  {\em natural} $|$
-			  {\em numeric-word} \\
-		    $|$ & {\em word} $|$
-			  {\em numeric} $|$
-			  {\em mark} $|$
-			  {\em separator} \\
-		    $|$ & {\em quoted-word} $|$
-			  {\em quoted-numeric} $|$
-			  {\em quoted-mark} $|$
-			  {\em quoted-separator}
-		    \end{tabular}
-\\[0.5ex]
-\emkey{argument-list} ::= {\em subexpression}
+\emkey{argument-list} ::= {\em subexpression} $|$ {\em naked-argument}
 \\[0.5ex]
 \emkey{subexpression}\label{SUBEXPRESSION}
                       ::= \begin{tabular}[t]{l}
@@ -10000,6 +9983,14 @@ The syntax of the vector elements of a primary recognized by \TT{PRIM} is:
 			  \TT{.initiator} and \TT{.terminator} \\
 			  are `\TT{[}' and `\TT{]}' respectively
 			  \end{tabular}
+\\[0.5ex]
+\emkey{naked-argument} \begin{tabular}[t]{@{}rl@{}}
+                       ::= & {\em number} $|$ {\em quoted-string} \\
+		       $|$ & {\em subexpression} whose
+		             \TT{.initiator} is not `\TT{(}' \\
+			   & and whose \TT{.terminator} is not
+			     \TT{INDENTED\_PARAGRAPH}
+		       \end{tabular}
 
 \begin{enumerate}
 \item The primary proper is a subexpression, i.e., an object,

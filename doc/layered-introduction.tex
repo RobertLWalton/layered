@@ -9972,19 +9972,19 @@ The syntax of the vector elements of a primary recognized by \TT{PRIM} is:
 \emkey{argument-list} ::= {\em subexpression} $|$ {\em naked-argument}
 \\[0.5ex]
 \emkey{subexpression}\label{SUBEXPRESSION}
-                      ::= \begin{tabular}[t]{l}
+                      ::= \begin{tabular}[t]{@{}l@{}}
                           a MIN object whose only allowed attributes are: \\
 			  ~~~ \TT{.initiator} ~~~ \TT{.terminator} ~~~
 			      \TT{.separator}
 			  \end{tabular}
 \\[0.5ex]
-\emkey{[]-subexpression} ::= \begin{tabular}[t]{l}
+\emkey{[]-subexpression} ::= \begin{tabular}[t]{@{}l@{}}
                           a {\em subexpression} whose
 			  \TT{.initiator} and \TT{.terminator} \\
 			  are `\TT{[}' and `\TT{]}' respectively
 			  \end{tabular}
 \\[0.5ex]
-\emkey{naked-argument} \begin{tabular}[t]{@{}rl@{}}
+\emkey{naked-argument} \begin{tabular}[t]{@{}rl@{}@{}}
                        ::= & {\em number} \\
 		       $|$ & a MIN object whose
 		             \TT{.initiator} is not `\TT{(}' \\
@@ -10064,31 +10064,32 @@ as it is \underline{before} parsing:
 \emkey{prototype-term} ::= {\em prototype-term-name}
                            {\em prototype-argument-list}\STAR{}
 \\[0.5ex]
-\emkey{prototype-term-name} ::= {\em call-term-name}
-				excluding
-				un-quoted {\em marks} and {\em separators}
+\emkey{prototype-term-name} ::=
+               \begin{tabular}[t]{@{}l@{}}
+               \{ {\em word} $|$ {\em quoted-mark}
+			     $|$ {\em quoted-separator} \} \\
+               \{ {\em word} $|$ {\em natural}
+	                     $|$ {\em quoted-word}
+	                     $|$ {\em quoted-mark}
+			     $|$ {\em quoted-separator} \}\STAR{}
+	       \end{tabular}
 \\[0.5ex]
-\emkey{call-term-name} ::= see \pagref{CALL-TERM-NAME}
+\emkey{prototype-argument-list} ::=
+	\begin{tabular}[t]{@{}l@{}}
+	a {\em subexpression} with an \TT{.initiator} and
+	\TT{.terminator} \\
+	whose \TT{.terminator} is not \TT{INDENTED\_PARAGRAPH} \\
+	and whose \TT{.separator} is missing or `\TT{,}'
+	\end{tabular}
 \\[0.5ex]
-\emkey{prototype-argument-list} ::= \begin{tabular}[t]{@{}l}
-				like {\em ()-prototype-argument-list} but with
-				arbitrary \\
-				(non-missing)
-				\TT{.initiator} and \TT{.terminator}
-				\end{tabular}
-\\[0.5ex]
-\emkey{()-prototype-argument-list} ::=
-    \TT{(} {\em argument-descriptor}
-           \{ \TT{,} {\em argument-descriptor} \}\STAR{} \TT{)}
+\emkey{subexpression} ::= see \pagref{SUBEXPRESSION}
 \\[0.5ex]
 \emkey{argument-descriptor} ::= \begin{tabular}[t]{@{}l}
 				{\em variable-name}
 				\{ \TT{?=} {\em default-value} \}\QMARK{} \\
-				\TT{*bool*} {\em variable-name} \\
-				\TT{*list*} {\em variable-name} \\
 				\end{tabular}
 \\[0.5ex]
-\emkey{default-value} ::= {\em expression}
+\emkey{default-value} ::= parsed {\em expression}
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
 

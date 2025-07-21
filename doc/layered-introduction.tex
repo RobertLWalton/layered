@@ -9985,11 +9985,12 @@ The syntax of the vector elements of a primary recognized by \TT{PRIM} is:
 			  \end{tabular}
 \\[0.5ex]
 \emkey{naked-argument} \begin{tabular}[t]{@{}rl@{}}
-                       ::= & {\em number} $|$ {\em quoted-string} \\
-		       $|$ & {\em subexpression} whose
+                       ::= & {\em number} \\
+		       $|$ & a MIN object whose
 		             \TT{.initiator} is not `\TT{(}' \\
 			   & and whose \TT{.terminator} is not
-			     \TT{INDENTED\_PARAGRAPH}
+			     \TT{INDENTED\_PARAGRAPH} \\
+			   & (includes {\em quoted-strings})
 		       \end{tabular}
 
 \begin{enumerate}
@@ -10001,11 +10002,9 @@ or `{\tt ( X 1 )}', or `{\tt [X 1]}', or some similar subexpression.
 \item See Figure \itemref{LEXEME-PROGRAM-LEXEMES} for definitions of the
 different lexeme types (e.g., number, natural, word, etc.).
 \item
-An unquoted {\em name-lexeme} is represented by a MIN string primary
-vector element.  A quoted {\em name-lexeme} is represented by a MIN object
+A {\em quoted-string} is represented by a MIN object
 whose only attribute is a \TT{.type} attribute equal to \TT{"<Q>"} and
-whose only vector element is the string quoted (e.g., {\em word},
-{\em numeric}, {\em mark}, or {\em separator}).
+whose only vector element is the string quoted.
 \item
 A compiler may constrain the types of lexemes in a {\em variable-name}.
 The default is to allow only {\em words} and {\em naturals},
@@ -10013,8 +10012,7 @@ and to require the first lexeme to \underline{not} be a {\em natural}.
 \item
 A compiler may constrain the types of lexemes in a {\em call-term-name}.
 The default is to allow only {\em words}, {\em naturals}, {\em marks},
-{\em separators}, {\em quoted-words}, {\em quoted-marks},
-and {\em quoted-separators},
+and {\em separators}
 and to require the first lexeme to \underline{not} be a {\em natural}.
 \item
 An operator in a primary is a MIN string if the operator has only one
@@ -10023,6 +10021,10 @@ lexeme and a MIN label if the operator has more than one lexeme.
 Operator operands in a primary are {\em subexpressions} (i.e., objects).
 Since separators are operators, the vector elements of a {\em subexpression}
 with a \TT{.separator} are themselves {\em subexpressions}.
+\item
+A {\em naked-argument} is the sole argument of a `\TT{()}' bracketed
+argument list for which the parentheses were omitted, so the
+{\em naked-argument} is \underline{not} inside a {\em subexpression}.
 
 
 \end{enumerate}

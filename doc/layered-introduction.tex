@@ -9940,7 +9940,8 @@ which encodes a \key{lexical level} and a \key{depth}.
 
 \subsubsection{Primary Syntax}
 
-The syntax of the vector elements of a primary recognized by \TT{PRIM} is:
+The syntax of the vector elements of a parsed primary
+recognized by \TT{PRIM} is:
 \begin{indpar}
 \emkey{primary} ::= \begin{tabular}[t]{l}
 		    {\em variable-primary} \\
@@ -10033,7 +10034,7 @@ A {\em call-term} of the form `{\em negator} {\em call-term-name}'
 is equivalent to `{\em call-term-name} \TT{( *FALSE* )}'.
 The {\em call-term-name} must match the {\em prototype-term-name}
 of a {\em boolean-prototype-term},
-see \pagref{BOOLEAN-PROTOTYPE-TERM}.
+see \pagref{BOOLEAN-TERM-MATCHING}.
 
 
 \end{enumerate}
@@ -10060,7 +10061,7 @@ is similar to that of a {\em function-call} with extra detail
 for argument lists.
 
 However, we give here the syntax of a {\em function-prototype}
-as it is \underline{before} parsing:
+as it is \underline{\bf before} parsing:
 
 \begin{indpar}
 \emkey{function-prototype} \begin{tabular}[t]{rl}
@@ -10083,22 +10084,22 @@ as it is \underline{before} parsing:
 			     $|$ {\em quoted-separator} \}\STAR{}
 	       \end{tabular}
 \\[0.5ex]
-\emkey{prototype-argument-list} ::=
-	\begin{tabular}[t]{@{}l@{}}
-	a {\em subexpression} with an \TT{.initiator} and
-	\TT{.terminator} \\
-	whose \TT{.terminator} is not \TT{INDENTED\_PARAGRAPH} \\
-	and whose \TT{.separator} is missing or `\TT{,}'
-	\end{tabular}
+\emkey{quoted-XXX} :::= \TT{"} {\em XXX} \TT{"}
 \\[0.5ex]
-\emkey{subexpression} ::= see \pagref{SUBEXPRESSION}
+\emkey{prototype-argument-list} ::=
+	\begin{tabular}[t]{@{}rl@{}}
+	    & \TT{(} {\em argument-descriptor}
+	             \{ \TT{,} {\em argument-descriptor} \}\STAR{} \TT{)} \\
+	$|$ & ditto with \TT{()} brackets
+	      replaced by other brackets (e.g. \TT{[]})
+	\end{tabular}
 \\[0.5ex]
 \emkey{argument-descriptor} ::= \begin{tabular}[t]{@{}l}
 				{\em variable-name}
 				\{ \TT{?=} {\em default-value} \}\QMARK{} \\
 				\end{tabular}
 \\[0.5ex]
-\emkey{default-value} ::= parsed {\em expression}
+\emkey{default-value} ::= {\em expression}
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
@@ -10134,6 +10135,17 @@ It is assumed that {\em default-values} will be evaluated in the
 context of the {\em function-call} that uses them, and \underline{not}
 in the context of the {\em function-prototype} that defines them
 (unlike C++).
+\item
+\label{BOOLEAN-TERM-MATCHING}
+If a {\em boolean-prototype-term} is matched to a {\em call-term}
+of the form `{\em negator} {\em prototype-term-name}'
+the {\em call-term} will be taken to be equivalent to
+`{\em prototype-term-name} \TT{( *FALSE* )}'.  If matched instead to
+a {\em call-term} of the form `{\em prototype-term-name}'
+it will be taken to be equivalent to
+`{\em prototype-term-name} \TT{( *TRUE* )}'.
+In other cases it will be matched using normal rules of matching.
+
 \end{enumerate}
 
 \end{indpar}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 20 05:41:41 AM EDT 2025
+// Date:	Tue Jul 22 03:11:26 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -685,25 +685,6 @@ min::uns64 PRIM::func_term_outside_quotes_types =
       (1ull << LEXSTD::word_t)
     + (1ull << LEXSTD::natural_t);
 min::uns64 PRIM::func_term_inside_quotes_types =
-      (1ull << LEXSTD::word_t)
-    + (1ull << LEXSTD::mark_t)
-    + (1ull << LEXSTD::separator_t);
-
-min::uns64 PRIM::call_term_initial_types =
-      (1ull << LEXSTD::word_t)
-    + (1ull << LEXSTD::mark_t)
-    + (1ull << LEXSTD::separator_t);
-min::uns64 PRIM::call_term_following_types =
-      (1ull << LEXSTD::word_t)
-    + (1ull << LEXSTD::mark_t)
-    + (1ull << LEXSTD::separator_t)
-    + (1ull << LEXSTD::natural_t);
-min::uns64 PRIM::call_term_outside_quotes_types =
-      (1ull << LEXSTD::word_t)
-    + (1ull << LEXSTD::natural_t)
-    + (1ull << LEXSTD::mark_t)
-    + (1ull << LEXSTD::separator_t);
-min::uns64 PRIM::call_term_inside_quotes_types =
       (1ull << LEXSTD::word_t)
     + (1ull << LEXSTD::mark_t)
     + (1ull << LEXSTD::separator_t);

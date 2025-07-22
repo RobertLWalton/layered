@@ -236,7 +236,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 21, 2025
+July 22, 2025
  
 \end{center}
 
@@ -9957,6 +9957,7 @@ The syntax of the vector elements of a primary recognized by \TT{PRIM} is:
 		      \end{tabular}
 \\[0.5ex]
 \emkey{call-term} ::= {\em call-term-name} {\em argument-list}\STAR{}
+                   $|$ {\em negator} {\em call-term-name}
 \\[0.5ex]
 \emkey{variable-name} ::= {\em word} \{ {\em word} $|$ {\em natural} \}\STAR{}
 \\[0.5ex]
@@ -9968,6 +9969,8 @@ The syntax of the vector elements of a primary recognized by \TT{PRIM} is:
 	                     $|$ {\em mark}
 			     $|$ {\em separator} \}\STAR{}
 	       \end{tabular}
+\\[0.5ex]
+\emkey{negator} ::= \TT{no} $|$ \TT{not} $|$ \TT{NO} $|$ \TT{NOT}
 \\[0.5ex]
 \emkey{argument-list} ::= {\em subexpression} $|$ {\em naked-argument}
 \\[0.5ex]
@@ -10025,6 +10028,12 @@ with a \TT{.separator} are themselves {\em subexpressions}.
 A {\em naked-argument} is the sole argument of a `\TT{()}' bracketed
 argument list for which the parentheses were omitted, so the
 {\em naked-argument} is \underline{not} inside a {\em subexpression}.
+\item
+A {\em call-term} of the form `{\em negator} {\em call-term-name}'
+is equivalent to `{\em call-term-name} \TT{( *FALSE* )}'.
+The {\em call-term-name} must match the {\em prototype-term-name}
+of a {\em boolean-prototype-term},
+see \pagref{BOOLEAN-PROTOTYPE-TERM}.
 
 
 \end{enumerate}
@@ -10092,6 +10101,13 @@ as it is \underline{before} parsing:
 \emkey{default-value} ::= parsed {\em expression}
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
+\\[0.5ex]
+\emkey{boolean-prototype-term}\label{BOOLEAN-PROTOTYPE-TERM} ::= \\
+\hspace*{4em}{\em prototype-term-name}
+             \TT{(} {\em variable-name} \TT{?=} {\em truth-value} {)}
+\\[0.5ex]
+\emkey{truth-value} ::= \TT{*FALSE*} $|$ \TT{*TRUE*}
+
 
 \begin{enumerate}
 \item \TT{?=} must be an operator with a precedence just one notch higher

@@ -236,7 +236,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 22, 2025
+July 23, 2025
  
 \end{center}
 
@@ -10074,8 +10074,8 @@ as it is \underline{\bf before} parsing:
 \emkey{prototype-term} ::= {\em prototype-term-name}
                            {\em prototype-argument-list}\STAR{}
 \\[0.5ex]
-\emkey{prototype-term-name} ::=
-               \begin{tabular}[t]{@{}l@{}}
+\emkey{prototype-term-name} ::= \\
+\hspace*{4em}\begin{tabular}[t]{@{}l@{}}
                \{ {\em word} $|$ {\em quoted-mark}
 			     $|$ {\em quoted-separator} \} \\
                \{ {\em word} $|$ {\em natural}
@@ -10150,6 +10150,88 @@ In other cases it will be matched using normal rules of matching.
 
 \end{indpar}
 
+
+\subsubsection{Primary Scanning}
+
+The \TT{PRIM::scan\_primary} scans a parsed primary and returns
+a primary symbol table entry, either a \TT{PRIM::var} or a
+\TT{PRIM::func}.
+
+The first part of the scan constructs the primary label from
+the primary and looks that up in the symbol table to get an
+entry.  Only an initial part of the primary is used.  Longer
+parts are preferred, but if an initial part finds no entry
+it is progressively shortened until an entry is found.
+
+In constructing the label from the primary, argument lists
+including naked arguments
+are replaced by the string \TT{"(*)"} which, as it is not
+a lexeme, cannot appear elsewhere in the label.  When a
+label that ends with an natural fails, another attempt
+is made replacing the natural with \TT{"(*)"} in case
+the natural is a naked argument.  Quoted strings in the
+primary are taken to be naked arguments.
+
+After an entry is found, the entire primary is matched
+against the entry by \TT{PRIM::scan\_primary}.  If the match
+fails, the lookup is resumed in order to find another entry
+(perhaps one with a shorter label, or even one with the
+same label).  If the match
+succeeds, \TT{PRIM::scan\_primary} returns the entry,
+but its caller may then reject the entry and resume the
+lookup.
+
+Variable labels are equal to the {\em variable-name} so that
+when lookup finds a \TT{PRIM::var} the variable name is
+at the beginning of the primary.  Then
+\TT{PRIM::scan\_primary} checks that the reminder of the
+primary consists of \TT{[]}-bracketed subexpressions
+and if so, returns the \TT{PRIM::var} plus a list of
+the \TT{[]}-bracketed subexpressions.
+
+When a \TT{PRIM::func} is found, the primary is taken
+to be a function call, the \TT{PRIM::func} entry encodes
+a function prototype, and call-prototype matching is
+used to match the \TT{PRIM:func} to the primary.
+See the next section.
+
+\subsubsection{Call/Prototype Matching}
+
+A call consists of {\em argument-list} sequences separated by
+{\em call-term-names}.  Each {\em call-term-name} must exactly
+match exactly one of the {\em prototype-term-names}, except that
+quotes in the prototype names are removed before the match.
+The first {\em call-term-name} is part of the call label and
+the first {\em prototype-term-name} is part of the \TT{PRIM::func}
+label, so matches of these term names is guaranteed by lookup.
+
+Matching proceeds left to right.  After matching an {\em argument-list}
+
+More specifically, call/prototype matching is left to right and begins
+by matching
+the {\em argument-list} sequence at the beginning of the call to
+the {\em prototype-argument-list} sequence at the beginning of
+the prototype (argument list sequences may be empty).
+Then the first {\em call-term-name} is skipped over as it has
+already been matched to the first {\em prototype-term-name}
+by the \TT{PRIM::func} label lookup.  Then the {\em argument-list}
+sequence after the first {\em call-term-name} is matched to
+the {\em prototype-argument-list} sequence after the first
+{\em prototype-term-name}.
+
+After this matching proceeds by looking up the
+reminder of the primary in a small symbol table attached to the
+\TT{PRIM::func} that contains all the {\em prototype-term-names}
+but the first.  This finds the next {\em call-term-name}
+and its corresponding {\em prototype-term-name}.  The
+{\em argument-list} sequence after this {\em call-term-name}
+is then matched to the {\em prototype-argument-list} sequence
+after the {\em prototype-term-name}.  This last process
+of finding {\em call-term-names} and their matches repeats until
+the end of the primary.
+
+
+TDB
 
 
 \clearpage

@@ -10230,8 +10230,23 @@ after the {\em prototype-term-name}.  This last process
 of finding {\em call-term-names} and their matches repeats until
 the end of the primary.
 
+An output of a match is a list of arguments in the same order
+as they appear in the prototype.  Initially all arguments
+are marked missing.  After the primary is scanned, any
+argument still missing are filled in with default values.
+If after this any arguments are still missing, the
+call/prototype match fails.  If during the scan any
+non-missing argument is about to be given another value
+(can only happen if a {\em call-term-name} is duplicated
+in the call), the call/prototype match fails.  Here argument
+values are expressions to be evaluated by a call to the
+\TT{PRIM::func} function.
 
-TDB
+An {\em argument-list} matches a {\em prototype-argument-list}
+list if both have the same \TT{.initializer} and the
+{\em argument-list} is \underline{not} a {\em naked-argument}, or if
+the {\em prototype-argument-list} has `\TT{(}' as its
+\TT{.initializer} (in which case a {\em naked-argument} is allowed).
 
 
 \clearpage

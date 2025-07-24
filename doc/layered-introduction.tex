@@ -10242,10 +10242,11 @@ values are expressions to be evaluated prior to a call to the
 \TT{PRIM::func} function.
 
 An {\em argument-list} matches a {\em prototype-argument-list}
-list if both have the same \TT{.initializer} and the
+list if both have the same \TT{.initializer} and \TT{.terminator} and the
 {\em argument-list} is \underline{not} a {\em naked-argument}, or if
+the {\em argument-list} is a {\em naked-argument} and
 the {\em prototype-argument-list} has `\TT{(}' as its
-\TT{.initializer} and the {\em argument-list} is a {\em naked-argument}.
+\TT{.initiator} and `\TT{)}' as its \TT{.terminator}.
 
 Matches involving {\em boolean-prototype-terms} require special
 handling: see

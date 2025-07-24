@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 22 03:11:26 AM EDT 2025
+// Date:	Thu Jul 24 07:50:02 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -861,21 +861,14 @@ PRIM::func PRIM::scan_func_prototype
 	        min::get ( vp[i], min::dot_position );
 	    min::gen initiator =
 	        min::get ( vp[i], min::dot_initiator );
+	    min::gen terminator =
+	        min::get ( vp[i], min::dot_terminator );
+	    if (    terminator
+		 == min::INDENTED_PARAGRAPH() )
+		break;
 	    if ( initiator == min::NONE() )
 	        break;  // May be quoted string.
-	    if ( initiator == PARLEX::left_parenthesis )
-	        brackets = PRIMLEX::parentheses;
-	    else
-	    if ( initiator == PARLEX::left_square )
-	        brackets = PRIMLEX::square_brackets;
-	    else
 	    {
-	        min::gen terminator =
-		    min::get ( vp[i],
-		               min::dot_terminator );
-		if (    terminator
-		     == min::INDENTED_PARAGRAPH() )
-		    break;
 		min::gen labv[2] =
 		    { initiator, terminator };
 		brackets = min::new_lab_gen ( labv, 2 );
@@ -1519,27 +1512,16 @@ CHECK_TYPE:
 		if (    terminator
 		     == min::INDENTED_PARAGRAPH() )
 		    goto END_OF_PRIMARY;
+		min::lab_ptr lp = arg_list.brackets;
+		if ( initiator == lp[0]
+		     &&
+		     terminator == lp[1] )
+		    goto ACCEPT_LIST;
 		else if (    arg_list.brackets
-			  == PRIMLEX::square_brackets )
-		{
-		    if (    initiator
-		         == PARLEX::left_square )
-			goto ACCEPT_LIST;
-		    else
-			goto MISMATCH_FOUND;
-		}
-	        else if (    arg_list.brackets
-	                  == PRIMLEX::parentheses )
-		{
-		    if (    initiator
-		         == PARLEX::left_parenthesis )
-			goto ACCEPT_LIST;
-		    else
-			goto NAKED_ARGUMENT;
-		}
+			  == PRIMLEX::parentheses )
+		    goto NAKED_ARGUMENT;
 		else
-		     MIN_ABORT ( "unimplemented"
-		                 " arg_list.brackets" );
+		    goto MISMATCH_FOUND;
 	    }
 	END_OF_PRIMARY:
 	    if ( arg_list.number_required_args == 0 )
@@ -1554,25 +1536,20 @@ CHECK_TYPE:
 	    goto REJECT;
 
 	PURELIST:
-	    purelist_found = true;
-	NAKED_ARGUMENT:
 	    if (    arg_list.brackets
 	         != PRIMLEX::parentheses )
 	    {
 		if ( print_rejections )
 		    ::print_reject
 			( parser, func,
-			  purelist_found ?
-			      "purelist" :
-			      "naked argument",
-			  min::pnop,
-			  " found for ",
+			  "purelist found for ",
 			  VAR ( arg_list.first ),
-			  " [] bracketed argument"
+			  " non-() bracketed argument"
 			  " list" );
 		goto REJECT;
 	    }
-	    else
+	    purelist_found = true;
+	NAKED_ARGUMENT:
 	    if ( arg_list.number_required_args > 1 )
 	    {
 		if ( print_rejections )

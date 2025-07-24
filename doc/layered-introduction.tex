@@ -236,7 +236,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 23, 2025
+July 24, 2025
  
 \end{center}
 
@@ -10160,11 +10160,11 @@ a primary symbol table entry, either a \TT{PRIM::var} or a
 The first part of the scan constructs the primary label from
 the primary and looks that up in the symbol table to get an
 entry.  Only an initial part of the primary is used.  Longer
-parts are preferred, but if an initial part finds no entry
+initial parts are preferred, but if an initial part finds no entry
 it is progressively shortened until an entry is found.
 
-In constructing the label from the primary, argument lists
-including naked arguments
+In constructing the label from the primary, argument lists,
+including naked arguments,
 are replaced by the string \TT{"(*)"} which, as it is not
 a lexeme, cannot appear elsewhere in the label.  When a
 label that ends with an natural fails, another attempt
@@ -10172,8 +10172,8 @@ is made replacing the natural with \TT{"(*)"} in case
 the natural is a naked argument.  Quoted strings in the
 primary are taken to be naked arguments.
 
-After an entry is found, the entire primary is matched
-against the entry by \TT{PRIM::scan\_primary}.  If the match
+After an entry is found, the \TT{PRIM::scan\_\EOL primary} matches
+the entire primary against the entry.  If the match
 fails, the lookup is resumed in order to find another entry
 (perhaps one with a shorter label, or even one with the
 same label).  If the match
@@ -10205,8 +10205,6 @@ The first {\em call-term-name} is part of the call label and
 the first {\em prototype-term-name} is part of the \TT{PRIM::func}
 label, so matches of these term names is guaranteed by lookup.
 
-Matching proceeds left to right.  After matching an {\em argument-list}
-
 More specifically, call/prototype matching is left to right and begins
 by matching
 the {\em argument-list} sequence at the beginning of the call to
@@ -10219,7 +10217,7 @@ sequence after the first {\em call-term-name} is matched to
 the {\em prototype-argument-list} sequence after the first
 {\em prototype-term-name}.
 
-After this matching proceeds by looking up the
+Then matching proceeds by looking up the
 reminder of the primary in a small symbol table attached to the
 \TT{PRIM::func} that contains all the {\em prototype-term-names}
 but the first.  This finds the next {\em call-term-name}
@@ -10230,23 +10228,28 @@ after the {\em prototype-term-name}.  This last process
 of finding {\em call-term-names} and their matches repeats until
 the end of the primary.
 
-An output of a match is a list of arguments in the same order
+An output of a call/protype match is a list of arguments in the same order
 as they appear in the prototype.  Initially all arguments
-are marked missing.  After the primary is scanned, any
+are marked missing.  The scan then fills in argument
+expressions taken from the call.  After scanning, any
 argument still missing are filled in with default values.
 If after this any arguments are still missing, the
 call/prototype match fails.  If during the scan any
 non-missing argument is about to be given another value
 (can only happen if a {\em call-term-name} is duplicated
 in the call), the call/prototype match fails.  Here argument
-values are expressions to be evaluated by a call to the
+values are expressions to be evaluated prior to a call to the
 \TT{PRIM::func} function.
 
 An {\em argument-list} matches a {\em prototype-argument-list}
 list if both have the same \TT{.initializer} and the
 {\em argument-list} is \underline{not} a {\em naked-argument}, or if
 the {\em prototype-argument-list} has `\TT{(}' as its
-\TT{.initializer} (in which case a {\em naked-argument} is allowed).
+\TT{.initializer} and the {\em argument-list} is a {\em naked-argument}.
+
+Matches involving {\em boolean-prototype-terms} require special
+handling: see
+\pagref{BOOLEAN-TERM-MATCHING}.
 
 
 \clearpage

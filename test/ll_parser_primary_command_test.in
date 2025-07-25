@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 19 05:17:11 AM EDT 2025
+// Date:	Thu Jul 24 08:46:40 PM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -77,11 +77,11 @@
     test primary (* add 5 [66] *) [code]
     test primary (* add "HI" (B) *) [code]
     test primary (* add (A) {{B}} *) [code]
-    define primary function (* add 1 (A1) (A2 ?= Q) *) [code]
+    define primary function (* add 1 (A1) (A2 ?= Q1) *) [code]
+    define primary function (* add 1 2 (A2 ?= Q2) *) [code]
+    test primary (* add 1 2 *) [code]
     test primary (* add 1 6 *) [code]
-    define primary function (* add (A1) (A2) *) [code]
-    test primary (* add 1 6 *) [code]
-    test primary (* add 1 [X, Y, Z] *) [code]
+    test primary (* add 2 6 *) [code]
     end block BLOCK1
 
 *PARSER*:

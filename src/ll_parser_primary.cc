@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 24 07:50:02 AM EDT 2025
+// Date:	Tue Aug  5 10:46:45 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1417,9 +1417,8 @@ CHECK_TYPE:
         // Will be shortened for operator calls.
     PRIM::func_term func_term = min::NULL_STUB;
     min::uns32 arg_lists[func->arg_lists->length];
-    min::uns32 NO_ARG_LIST = (min::uns32) -1;
     for ( uns32 k = 0; k < func->args->length; ++ k )
-        arg_lists[k] = NO_ARG_LIST;
+        arg_lists[k] = PRIM::NO_ARG_LIST;
     min::uns32 number_arg_lists =
         func->arg_lists->length;
     while ( true )
@@ -1438,7 +1437,7 @@ CHECK_TYPE:
         for ( ; j < jend; ++ j )
 	{
 	    arg_list = func->arg_lists[j];
-	    if ( arg_lists[j] == NO_ARG_LIST )
+	    if ( arg_lists[j] == PRIM::NO_ARG_LIST )
 		arg_lists[j] = i;
 	    else
 	    {

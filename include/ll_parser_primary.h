@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 22 03:11:37 AM EDT 2025
+// Date:	Tue Aug  5 10:40:26 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -829,7 +829,9 @@ ll::parser::primary::func scan_func_prototype
 //
 // For functions the vp indeces of the argument lists
 // are returned in argument_list_vector, in left to
-// right prototype order.
+// right prototype order.  If a prototype argument
+// list is missing from the call, its argument_list_
+// vector element is set to NO_ARG_LIST.
 //
 // This function supports naked argument lists.  These
 // are numbers, quoted strings, and objects that do not
@@ -884,6 +886,7 @@ typedef min::packed_vec_insptr<min::gen>
     argument_vector;
 typedef min::packed_vec_insptr<min::uns32>
     argument_list_vector;
+const min::uns32 NO_ARG_LIST = 0xFFFFFFFF;
 bool scan_primary
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       min::phrase_position_vec ppvec, // of vp

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  6 03:54:25 AM EDT 2025
+// Date:	Wed Aug  6 04:24:53 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -944,7 +944,7 @@ PRIM::func PRIM::scan_func_prototype
 			{
 			    PRIM::compile_error
 			        ( alppvec[k],
-				  "argment with NO"
+				  "argument with NO"
 				  " default found"
 				  " AFTER argument with"
 				  " default" );
@@ -961,6 +961,15 @@ PRIM::func PRIM::scan_func_prototype
 	        if ( ! label_done )
 		    labbuf[j++] =
 		        PRIMLEX::argument_list;
+	    }
+	    else if ( st == BEFORE_FIRST_TERM )
+	    {
+		PRIM::compile_error
+		    ( ppv->position,
+		      "argument list before first term"
+		      " must have argument with NO"
+		      " default" );
+		++ errors;
 	    }
 	    else
 	        label_done = true;

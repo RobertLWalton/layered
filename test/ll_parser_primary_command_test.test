@@ -427,7 +427,7 @@ REJECTING: (X1, X2)F(Z1, Z2)
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
-ERROR: in line ###: argment with NO default found AFTER argument with
+ERROR: in line ###: argument with NO default found AFTER argument with
        default:
        (* (X1, X2) F (Z1, Z2 ?= D2, Z3) *) [code]
                                     ^^

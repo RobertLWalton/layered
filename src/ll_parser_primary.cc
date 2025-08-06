@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  6 04:24:53 AM EDT 2025
+// Date:	Wed Aug  6 19:27:45 EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1446,9 +1446,7 @@ CHECK_TYPE:
         for ( ; j < jend; ++ j )
 	{
 	    arg_list = func->arg_lists[j];
-	    if ( arg_lists[j] == PRIM::NO_ARG_LIST )
-		arg_lists[j] = i;
-	    else
+	    if ( arg_lists[j] != PRIM::NO_ARG_LIST )
 	    {
 	        if ( print_rejections )
 		    ::print_reject
@@ -1594,7 +1592,6 @@ CHECK_TYPE:
 		goto REJECT;
 	    }
 	ACCEPT_SINGLETON:
-	    arg_list_found = true;
 	    if (    args[arg_list.first]
 		 != min::NONE() )
 	    {
@@ -1606,6 +1603,8 @@ CHECK_TYPE:
 			  " given two values" );
 		goto REJECT;
 	    }
+	    arg_list_found = true;
+	    arg_lists[j] = i;
 	    args[arg_list.first] = vp[i];
 	    ++ i;
 	    continue;
@@ -1630,6 +1629,7 @@ CHECK_TYPE:
 	        goto ACCEPT_SINGLETON;
 	    {
 		arg_list_found = true;
+		arg_lists[j] = i;
 		min::obj_vec_ptr avp = vp[i];
 		min::uns32 as = min::size_of ( avp );
 		if ( as > arg_list.number_of_args )

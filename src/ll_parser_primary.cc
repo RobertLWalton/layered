@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  5 10:46:45 PM EDT 2025
+// Date:	Wed Aug  6 03:54:25 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1465,7 +1465,7 @@ CHECK_TYPE:
 		//
 	        min::obj_vec_ptr evp = vp[i];
 		if ( evp == min::NULL_STUB )
-		    goto NAKED_ARGUMENT;
+		    goto NON_OBJECT;
 		min::attr_ptr eap = evp;
 		min::attr_info info[4];
 		min::unsptr c = min::attr_info_of
@@ -1548,6 +1548,25 @@ CHECK_TYPE:
 		goto REJECT;
 	    }
 	    purelist_found = true;
+	    goto NAKED_ARGUMENT;
+
+	NON_OBJECT:
+	    if ( min::is_str ( vp[i] ) )
+	    {
+		if (    arg_list.number_required_args
+		     == 0 )
+		    continue;
+		if ( print_rejections )
+		    ::print_reject
+			( parser, func, "",
+			  min::pgen_name
+			     ( arg_list.brackets ),
+			  " bracketed argument"
+			  " list expected but word,"
+			  " mark, or separator found" );
+		goto REJECT;
+	    }
+
 	NAKED_ARGUMENT:
 	    if ( arg_list.number_required_args > 1 )
 	    {

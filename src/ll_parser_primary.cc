@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  6 19:27:45 EDT 2025
+// Date:	Thu Aug  7 05:51:14 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -90,9 +90,20 @@ static void initialize ( void )
     for ( min::uns32 i = 0; i < 2; ++ i )
     {
 	::func_bool_expression[i] =
-	    min::new_obj_gen ( 1 );
+	    min::new_obj_gen ( 10, 1 );
 	vp = ::func_bool_expression[i];
 	min::attr_push ( vp ) = lp[i];
+
+	min::locatable_var
+	    <min::phrase_position_vec_insptr> ppv;
+	min::init ( ppv, min::NULL_STUB,
+	            PAR::top_level_position, 1 );
+	min::push(ppv) = PAR::top_level_position;
+	min::attr_insptr ap = vp;
+	min::locate ( ap, min::dot_position );
+	min::set ( ap, min::new_stub_gen ( ppv ) );
+	min::set_flag
+	    ( ap, min::standard_attr_hide_flag );
     }
 
     PAR::push_new_pass

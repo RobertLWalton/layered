@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  7 05:51:14 AM EDT 2025
+// Date:	Wed Aug 20 04:08:09 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -800,7 +800,8 @@ inline min::uns32 process_arg
 	min::gen original_name = name;
 	min::uns32 ni = 0;
 	name = PRIM::scan_var_name ( nvp, ni );
-	if ( ni < min::size_of ( nvp ) )
+	if (    name == min::NONE()
+	     || ni < min::size_of ( nvp ) )
 	{
 	    nvp = min::NULL_STUB;
 	    PRIM::compile_error
@@ -868,12 +869,24 @@ PRIM::func PRIM::scan_func_prototype
 	    min::uns32 first = func->args->length;
 	    min::uns32 number_required_args = 0;
 	    min::locatable_gen brackets;
-	    min::phrase_position_vec ppv =
-	        min::get ( vp[i], min::dot_position );
-	    min::gen initiator =
-	        min::get ( vp[i], min::dot_initiator );
-	    min::gen terminator =
-	        min::get ( vp[i], min::dot_terminator );
+	    min::phrase_position_vec ppv;
+	    min::gen initiator;
+	    min::gen terminator;
+	    min::gen sep;
+	    min::uns32 alsize;
+	    {
+	        min::obj_vec_ptr alvp = vp[i];
+		alsize = min::size_of ( alvp );
+		min::attr_ptr alap = alvp;
+	        min::locate ( alap, min::dot_position );
+		ppv = min::get ( alap );
+	        min::locate ( alap, min::dot_initiator );
+		initiator = min::get ( alap );
+	        min::locate ( alap, min::dot_terminator );
+		terminator = min::get ( alap );
+	        min::locate ( alap, min::dot_separator );
+		sep = min::get ( alap );
+	    }
 	    if (    terminator
 		 == min::INDENTED_PARAGRAPH() )
 		break;
@@ -885,9 +898,30 @@ PRIM::func PRIM::scan_func_prototype
 		brackets = min::new_lab_gen ( labv, 2 );
 	    }
 
-	    min::gen sep =
-	        min::get ( vp[i], min::dot_separator );
-	    if ( sep == min::NONE() )
+	    if ( alsize == 0 )
+	    {
+		if ( st != AFTER_FIRST_TERM
+		     ||
+	 	        first_arg_list
+		     != func->arg_lists->length
+		     ||
+		     brackets != PRIMLEX::parentheses )
+		{
+		    PRIM::compile_error
+			( ppv->position,
+			  "empty argument list;"
+			  " ignored" );
+		    ++ errors;
+		    ++ i;
+		    continue;
+		}
+		else
+		{
+		    ++ i;
+		    break;
+		}
+	    }
+	    else if ( sep == min::NONE() )
 	    {
 	        // There is only one argument.
 

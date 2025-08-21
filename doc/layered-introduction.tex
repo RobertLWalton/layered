@@ -10111,9 +10111,13 @@ as it is \underline{\bf before} parsing:
 
 
 \begin{enumerate}
+\item Except for the first {\em prototype-term}, the {\em prototype-term-name}
+in the {\em prototype-term} must be followed by at least one
+{\em prototype-argument-list}.
 \item A special empty parenthesized argument list \TT{()} can be used
-to separate the first {\em proto\-type-term} from the second
+to separate the first {\em proto\-type-term} from a second
 {\em prototype-term} if the first term has no other argument lists.
+The \TT{()} is otherwise completely ignored.
 \item \TT{?=} must be an operator with a precedence just one notch higher
 than the \TT{,} operator.
 \item It is assumed that words beginning and ending with \TT{*} are

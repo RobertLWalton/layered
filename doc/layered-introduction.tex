@@ -236,7 +236,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 20, 2025
+August 22, 2025
  
 \end{center}
 
@@ -9851,8 +9851,10 @@ An argument list with a single argument that should be surrounded
 by `\TT{(~)}'s may be represented by just the argument itself
 (i.e., have the `\TT{(~)}'s omitted from textual input to the parser)
 if the single argument
-is a number or an object (including quoted strings) that does not have
-\TT{.initiator} `\TT{(}' or \TT{.terminator} \TT{INDENTED\_PARAGRAPH}.
+is a number or an object (including quoted strings and purelists)
+that does not have
+\TT{.initiator} and \TT{.terminator} `\TT{(~)}' and
+does not have \TT{.terminator} \TT{INDENTED\_PARAGRAPH}.
 The argument
 in such a list is called \key{naked}.\label{NAKED-ARGUMENT}.
 
@@ -9988,13 +9990,15 @@ recognized by \TT{PRIM} is:
 			  are `\TT{[}' and `\TT{]}' respectively
 			  \end{tabular}
 \\[0.5ex]
-\emkey{naked-argument} \begin{tabular}[t]{@{}rl@{}@{}}
-                       ::= & {\em number} \\
+\emkey{naked-argument} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}@{}}
+                           & {\em number} \\
 		       $|$ & a MIN object whose
-		             \TT{.initiator} is not `\TT{(}' \\
+		             \TT{.initiator} and \TT{.terminator}
+			     are not `\TT{( )}', \\
 			   & and whose \TT{.terminator} is not
 			     \TT{INDENTED\_PARAGRAPH} \\
-			   & (includes {\em quoted-strings})
+			   & (includes {\em quoted-strings} and purelists)
 		       \end{tabular}
 
 \begin{enumerate}
@@ -10249,11 +10253,11 @@ values are expressions to be evaluated prior to a call to the
 \TT{PRIM::func} function.
 
 An {\em argument-list} matches a {\em prototype-argument-list}
-list if both have the same \TT{.initializer} and \TT{.terminator} and the
-{\em argument-list} is \underline{not} a {\em naked-argument}, or if
+list if both have the same \TT{.initializer} and \TT{.terminator}, or if
 the {\em argument-list} is a {\em naked-argument} and
 the {\em prototype-argument-list} has `\TT{(}' as its
-\TT{.initiator} and `\TT{)}' as its \TT{.terminator}.
+\TT{.initiator} and `\TT{)}' as its \TT{.terminator} and
+has at most one argument with no default value.
 
 Matches involving {\em boolean-prototype-terms} require special
 handling: see
